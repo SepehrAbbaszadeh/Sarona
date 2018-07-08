@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarona", "Sarona\Sarona.csproj", "{A7857F75-352B-48CB-BFAB-8780ECE4E1FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A7857F75-352B-48CB-BFAB-8780ECE4E1FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7857F75-352B-48CB-BFAB-8780ECE4E1FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7857F75-352B-48CB-BFAB-8780ECE4E1FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7857F75-352B-48CB-BFAB-8780ECE4E1FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3B0DD0BB-EF28-486D-9DA2-96E298FD2239}
+	EndGlobalSection
+EndGlobal
