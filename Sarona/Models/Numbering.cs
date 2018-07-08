@@ -7,6 +7,7 @@ namespace Sarona.Models
 {
     public class NumberingRange
     {
+        public long Id { get; set; }
         public long From { get; set; }
         public long To { get; set; }
         public byte Min { get; set; }
@@ -14,5 +15,10 @@ namespace Sarona.Models
         public string NumberType { get; set; }
         public string ChargingCase { get; set; }
         public string MyProperty { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public DateTime ModifiedOn { get; set; }
+        public string UserName { get; set; }
+        public string Remark { get; set; }
+        public DGSB Dgsb { get; set; }
     }
 }
