@@ -1,0 +1,16 @@
+[
+  {
+    "outputFileName": "wwwroot/css/main.min.css",
+    "inputFiles": [
+      "wwwroot/css/main.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/main.js",
+    "inputFiles": [
+      "wwwroot/js/jquery-3.3.1.min.js",
+      "wwwroot/js/popper.js",
+      "wwwroot/js/bootstrap.min.js"
+    ]
+  }
+]

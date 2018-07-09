@@ -7,9 +7,6 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="NewFolder\" />
-    <Folder Include="Views\" />
-    <Folder Include="wwwroot\js\" />
-    <Folder Include="wwwroot\css\" />
   </ItemGroup>
 
   <ItemGroup>
