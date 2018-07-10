@@ -1,4 +1,22 @@
-﻿$enable-shadows : true;
+﻿$myPrimary: #347c23;
+
+$enable-shadows : true;
 $enable-rounded : false;
+$theme-colors: ( "primary": #347c23);
 @import "bootstrap/bootstrap.scss";
 
+.footer {
+    background-color: $myPrimary;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+}
+html{
+    height: 100%;
+}
+body{
+    position:relative;
+    min-height:100%;
+}

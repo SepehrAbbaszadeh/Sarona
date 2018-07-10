@@ -1,49 +1,48 @@
-﻿
-@{
-
-
-}
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+﻿<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Traffic & numbering department">
-    <meta name="author" content="Sepehr Abbaszadeh">
-    <title>Sticky Footer Navbar Template for Bootstrap</title>
-    <link href="~/css/main.min.css" rel="stylesheet" asp-append-version="true" />
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content="Traffic & numbering department"/>
+    <meta name="author" content="Sepehr Abbaszadeh"/>
+    <title>@ViewData["Title"] - Sarnoa</title>
+    <link href="~/css/site.min.css" rel="stylesheet" asp-append-version="true" />
+    @await RenderSectionAsync("Links", false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-            <a class="navbar-brand" href="#">سامانه روتینگ و نامبرینگ (سارونا)</a>
-            <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarCollapse" aria-label="Toggle navigation" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <ul class="navbar-nav mr-auto">
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                <a class="navbar-brand" href="#">Hidden brand</a>
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                     <li class="nav-item active">
-                        <a class="nav-link">Home</a>
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Link</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Disabled</a>
+                    </li>
                 </ul>
-                <form class="form-inline mt-2 mt-md-0">
-                    <input class="form-control mr-sm-2" aria-label="Search" type="text" placeholder="Search">
+                <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                 </form>
             </div>
         </nav>
     </header>
-    <main class="container" role="main">
+    <main class="container" style="padding-top:60px;padding-bottom:3rem">
         @RenderBody()
     </main>
-    <footer class="footer">
-        <div class="container">
-            <span class="text-muted">Traffic & numbering department.<br />Powered by ASP.NET core 2.1, Entity Framework 2.1, Bootstrap 4 and patience. </span>
-        </div>
+    <footer class="footer text-center small text-white p-2">
+        Traffic & Numbering Department <br />Powered by ASP.NET Core 2.1, Entity Framework 2.1 and Bootstrap 4.
     </footer>
     <script src="~/js/main.min.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts",false)
 </body>
 </html>
