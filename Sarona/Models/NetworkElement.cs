@@ -15,6 +15,8 @@ namespace Sarona.Models
         public long AbbreviationId { get; set; }
         public Abbreviation Abbreviation { get; set; }
         public string Remark { get; set; }
+        public IEnumerable<Link> LinksOnEnd1 { get; set; }
+        public IEnumerable<Link> LinksOnEnd2 { get; set; }
 
     }
 }
