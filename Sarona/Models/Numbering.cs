@@ -15,15 +15,15 @@ namespace Sarona.Models
         public string NumberType { get; set; }
         public string ChargingCase { get; set; }
         public DateTime CreatedOn { get; set; }
-        public DateTime ModifiedOn { get; set; }
         public string UserName { get; set; }
         public string Remark { get; set; }
         public DGSB Dgsb { get; set; }
+        public string RoutingType { get; set; }
     }
 
     public class NumberingPool : NumberingRange
     {
-
+        public IEnumerable<NumberingPoolNetworkElement> NumberingPoolNetworkElements { get; set; }
     }
 
     public class NumberingRouting : NumberingRange
@@ -31,9 +31,8 @@ namespace Sarona.Models
 
     }
 
-    public class NumberingPoolNetworkElementJunction
+    public class NumberingPoolNetworkElement
     {
-        public long Id { get; set; }
         public long NumberingPoolId { get; set; }
         public NumberingPool Numbering { get; set; }
         public long NetworkElementId { get; set; }

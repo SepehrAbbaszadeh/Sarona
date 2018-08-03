@@ -5,17 +5,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\13970431050912_Initial.cs" />
+    <Compile Remove="Migrations\13970431050912_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970431052759_Initial.cs" />
+    <Compile Remove="Migrations\13970431052759_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970431060810_Initial.cs" />
+    <Compile Remove="Migrations\13970431060810_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970431062020_Initial.cs" />
+    <Compile Remove="Migrations\13970431062020_Initial.Designer.cs" />
     <Compile Remove="Migrations\20180711031223_Initial.cs" />
     <Compile Remove="Migrations\20180711031223_Initial.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.3" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

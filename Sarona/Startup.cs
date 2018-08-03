@@ -32,6 +32,9 @@ namespace Sarona
             app.UseStaticFiles();
             app.UseMvc(rt =>
             {
+                rt.MapRoute(null, "{controller}/{exchange}/{action}");
+                rt.MapRoute(null, "{controller}/{exchange}/{element}/{action}");
+                rt.MapRoute(null, "{controller}/{action}");
                 rt.MapRoute(null, "{controller=Home}/{action=Index}");
             });
         }

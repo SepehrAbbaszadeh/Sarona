@@ -17,6 +17,7 @@ namespace Sarona.Models
         public string Remark { get; set; }
         public IEnumerable<Link> LinksOnEnd1 { get; set; }
         public IEnumerable<Link> LinksOnEnd2 { get; set; }
+        public IEnumerable<NumberingPoolNetworkElement> NumberingPoolNetworkElements { get; set; }
 
     }
 }

@@ -28,5 +28,8 @@ namespace Sarona.Models
         public NetworkElement End2 { get; set; }
         public DateTime CreatedOn { get; set; }
         public string Remark { get; set; }
+        public long OtherLinkId { get; set; }
+        public Link OtherLink { get; set; }
+
     }
 }

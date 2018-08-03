@@ -6,33 +6,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <meta name="description" content="Traffic & numbering department"/>
     <meta name="author" content="Sepehr Abbaszadeh"/>
-    <title>@ViewData["Title"] - Sarnoa</title>
+    <title>@ViewData["Title"] - Sarona</title>
     <link href="~/css/site.min.css" rel="stylesheet" asp-append-version="true" />
-    @await RenderSectionAsync("Links", false)
+    @await RenderSectionAsync("Styles", false)
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
             <a class="navbar-brand" href="#">سامانه نامبرینگ و روتینگ (سارونا)</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-
+            <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
+                        <a class="nav-link" asp-controller="Network" asp-action="Index">Network</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link disabled" href="#">Disabled</a>
+                        <a class="nav-link" href="#">CRM</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Numbering</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Reports</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true">
+                            Dropdown link
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </li>
+
                 </ul>
                 <form class="form-inline my-2 my-lg-0">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
                 </form>
             </div>
         </nav>
@@ -41,7 +57,7 @@
         @RenderBody()
     </main>
     <footer class="footer text-center small text-white p-2">
-        Traffic & Numbering Department <br />Powered by ASP.NET Core 2.1, Entity Framework 2.1 and Bootstrap 4.
+        Traffic and Numbering Department <br />Powered by ASP.NET Core 2.1, Entity Framework 2.1 and Bootstrap 4.
     </footer>
     <script src="~/js/main.min.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts",false)
