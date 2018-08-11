@@ -41,8 +41,9 @@ namespace Sarona.Models
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<NumberingPoolNetworkElement>()
                 .HasKey(x => new { x.NumberingPoolId, x.NetworkElementId });
-
-
+            modelBuilder.Entity<Abbreviation>()
+                .HasIndex(x => x.Abb).IsUnique();
+            
             foreach(var fk in modelBuilder.Model.GetOrAddEntityType(typeof(Link)).GetForeignKeys())
             {
                 fk.DeleteBehavior = DeleteBehavior.Restrict;

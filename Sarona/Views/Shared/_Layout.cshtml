@@ -2,18 +2,19 @@
 <html>
 <head>
 
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="description" content="Traffic & numbering department"/>
-    <meta name="author" content="Sepehr Abbaszadeh"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Traffic & numbering department" />
+    <meta name="author" content="Sepehr Abbaszadeh" />
     <title>@ViewData["Title"] - Sarona</title>
+    <link rel="icon" type="image/x-icon" href="~/img/tci_logo_black_icon.ico">
     <link href="~/css/site.min.css" rel="stylesheet" asp-append-version="true" />
     @await RenderSectionAsync("Styles", false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-            <a class="navbar-brand" href="#">سامانه نامبرینگ و روتینگ (سارونا)</a>
+        <nav class="navbar navbar-expand-xl navbar-dark bg-primary fixed-top">
+            <a class="navbar-brand" href="#">سامانه نامبرینگ و روتینگ - سارونا</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -23,7 +24,7 @@
                         <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Network" asp-action="Index">Network</a>
+                        <a class="nav-link" asp-controller="Network" asp-action="District">Network</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">CRM</a>
@@ -38,13 +39,15 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true">
                             Dropdown link
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <div class="dropdown-menu">
                             <a class="dropdown-item" href="#">Action</a>
                             <a class="dropdown-item" href="#">Another action</a>
                             <a class="dropdown-item" href="#">Something else here</a>
                         </div>
                     </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Logout</a>
+                    </li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">

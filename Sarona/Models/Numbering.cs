@@ -19,6 +19,7 @@ namespace Sarona.Models
         public string Remark { get; set; }
         public DGSB Dgsb { get; set; }
         public string RoutingType { get; set; }
+        public DateTime ExpireDate { get; set; }
     }
 
     public class NumberingPool : NumberingRange

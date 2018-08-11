@@ -14,10 +14,13 @@ namespace Sarona.Models
         public string Model { get; set; }
         public long AbbreviationId { get; set; }
         public Abbreviation Abbreviation { get; set; }
+        public int InstalledCapacity { get; set; }
+        public int UsedCapacity { get; set; }
+        public long? ParentId { get; set; }
+        public NetworkElement Parent { get; set; }
         public string Remark { get; set; }
         public IEnumerable<Link> LinksOnEnd1 { get; set; }
         public IEnumerable<Link> LinksOnEnd2 { get; set; }
         public IEnumerable<NumberingPoolNetworkElement> NumberingPoolNetworkElements { get; set; }
-
     }
 }

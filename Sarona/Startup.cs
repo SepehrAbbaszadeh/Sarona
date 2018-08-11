@@ -21,6 +21,7 @@ namespace Sarona
         {
             string conString = Configuration["ConnectionStrings:DefaultConnection"];
             services.AddDbContext<SaronaContext>(options => options.UseSqlServer(conString));
+            services.AddTransient<SaronaRepository>();
             services.AddMvc();
         }
 
@@ -32,9 +33,20 @@ namespace Sarona
             app.UseStaticFiles();
             app.UseMvc(rt =>
             {
-                rt.MapRoute(null, "{controller}/{exchange}/{action}");
-                rt.MapRoute(null, "{controller}/{exchange}/{element}/{action}");
-                rt.MapRoute(null, "{controller}/{action}");
+                rt.MapRoute(
+                    name: "",
+                    template: "Network/{district}/{action}",
+                    defaults: new { controller = "Network", action = "District" });
+                rt.MapRoute(
+                    name: "",
+                    template: "Network/{district}",
+                    defaults: new { controller = "Network", action = "District" });
+                rt.MapRoute(
+                    name: "Network",
+                    template: "Network/",
+                    defaults: new { controller = "Network", action = "District" });
+                
+                
                 rt.MapRoute(null, "{controller=Home}/{action=Index}");
             });
         }
