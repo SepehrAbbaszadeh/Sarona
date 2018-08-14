@@ -14,7 +14,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-xl navbar-dark bg-primary fixed-top">
-            <a class="navbar-brand" href="#">سامانه نامبرینگ و روتینگ - سارونا</a>
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">سامانه نامبرینگ و روتینگ - سارونا</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -24,7 +24,7 @@
                         <a class="nav-link" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Network" asp-action="District">Network</a>
+                        <a class="nav-link" href="/Network">Network</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">CRM</a>
@@ -63,6 +63,7 @@
         Traffic and Numbering Department <br />Powered by ASP.NET Core 2.1, Entity Framework 2.1 and Bootstrap 4.
     </footer>
     <script src="~/js/main.min.js" asp-append-version="true"></script>
+    <script src="~/js/Site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts",false)
 </body>
 </html>

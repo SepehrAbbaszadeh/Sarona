@@ -14,6 +14,7 @@ namespace Sarona.Models
         public DbSet<Link> Links { get; set; }
         public DbSet<NumberingPool> NumberingPools { get; set; }
         public DbSet<NetworkElement> NetworkElements { get; set; }
+        public DbSet<Misc> Miscs { get; set; }
 
         public long GetNextLinkSequenceValue()
         {
@@ -25,12 +26,51 @@ namespace Sarona.Models
                        "SELECT @result = (NEXT VALUE FOR LinkSequence)", result);
             return (long)result.Value;
         }
+        public long GetNextPbxSequenceValue()
+        {
+            SqlParameter result = new SqlParameter("@result", System.Data.SqlDbType.BigInt)
+            {
+                Direction = System.Data.ParameterDirection.Output
+            };
+            Database.ExecuteSqlCommand(
+                       "SELECT @result = (NEXT VALUE FOR PbxSequence)", result);
+            return (long)result.Value;
+        }
+        public long GetNextRemoteSequenceValue()
+        {
+            SqlParameter result = new SqlParameter("@result", System.Data.SqlDbType.BigInt)
+            {
+                Direction = System.Data.ParameterDirection.Output
+            };
+            Database.ExecuteSqlCommand(
+                       "SELECT @result = (NEXT VALUE FOR RemoteSequence)", result);
+            return (long)result.Value;
+        }
+        public long GetNexAccessSequenceValue()
+        {
+            SqlParameter result = new SqlParameter("@result", System.Data.SqlDbType.BigInt)
+            {
+                Direction = System.Data.ParameterDirection.Output
+            };
+            Database.ExecuteSqlCommand(
+                       "SELECT @result = (NEXT VALUE FOR AccessSequence)", result);
+            return (long)result.Value;
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasSequence("LinkSequence")
                 .StartsAt(1)
                 .IncrementsBy(2);
+            modelBuilder.HasSequence("PbxSequence")
+                .StartsAt(1)
+                .IncrementsBy(1);
+            modelBuilder.HasSequence("RemoteSequence")
+                .StartsAt(1)
+                .IncrementsBy(1);
+            modelBuilder.HasSequence("AccessSequence")
+                .StartsAt(1)
+                .IncrementsBy(1);
             modelBuilder.Entity<NetworkElement>()
                 .HasMany(x => x.LinksOnEnd1)
                 .WithOne(x => x.End1)

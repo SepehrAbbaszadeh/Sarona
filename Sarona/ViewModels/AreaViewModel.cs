@@ -9,7 +9,7 @@ namespace Sarona.ViewModels
     public class DistrictViewModel
     {
         public Area SelectedDistrict { get; set; }
-        public Abbreviation NewAbbreviation { get; set; }
+        public Abbreviation SelectedExchange { get; set; }
         public IEnumerable<Abbreviation> Exchanges { get; set; }
     }
 }

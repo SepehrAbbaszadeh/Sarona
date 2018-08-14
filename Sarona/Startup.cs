@@ -33,14 +33,18 @@ namespace Sarona
             app.UseStaticFiles();
             app.UseMvc(rt =>
             {
+                //rt.MapRoute(
+                //    name: null,
+                //    template: "api/{controller}/{action}");
                 rt.MapRoute(
-                    name: "",
-                    template: "Network/{district}/{action}",
-                    defaults: new { controller = "Network", action = "District" });
+                    name: null,
+                    template: "Network/{district:length(2)}/{exchange:maxlength(4)}/{action}",
+                    defaults: new { controller = "Network", action = "Exchange"});
                 rt.MapRoute(
-                    name: "",
-                    template: "Network/{district}",
+                    name: null,
+                    template: "Network/{district:length(2)}/{action}",
                     defaults: new { controller = "Network", action = "District" });
+
                 rt.MapRoute(
                     name: "Network",
                     template: "Network/",

@@ -1,0 +1,414 @@
+﻿@model ExchangeViewModel
+@{
+    string active = "";
+    ViewData["Title"] = $"{Model.SelectedExchange.Abb} ({Model.SelectedExchange.Name})";
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="list-group">
+            @foreach (var exch in Model.Exchanges)
+            {
+
+                if (exch.Id == Model.SelectedExchange.Id)
+                {
+                    active = "active";
+                }
+                else
+                {
+                    active = "";
+                }
+                <a asp-action="Exchange" asp-route-exchange="@exch.Abb" asp-route-district="@Model.SelectedDistrict" class="list-group-item list-group-item-action @active">@exch.Abb (@exch.Name)</a>
+            }
+        </div>
+    </div>
+    <div class="col-md-9">
+        <h3>@Model.SelectedExchange.Abb (@Model.SelectedExchange.Name)</h3>
+        @if (TempData.Keys.Contains("message"))
+        {
+            <div class="alert alert-success">
+                @TempData["message"]
+            </div>
+
+        }
+        @if (!this.ViewContext.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+        }
+            <div class="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle my-3" data-toggle="dropdown">
+                    Add Network Element
+                </button>
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#editExchange">Edit "@Model.SelectedExchange.Name"</button>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteExchange">Delete "@Model.SelectedExchange.Name"</button>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item" data-toggle="modal" data-target="#addCore">Core</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addRemote">Remote</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAccess">Access</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPbx">PBX/IP-PBX</a>
+                </div>
+            </div>
+        
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab">
+                <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-core">Core</a>
+                <a class="nav-item nav-link" id="nav-remotes-tab" data-toggle="tab" href="#nav-remotes">Remotes</a>
+                <a class="nav-item nav-link" id="nav-accesses-tab" data-toggle="tab" href="#nav-accesses">Access</a>
+                <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-pbx">PBX</a>
+            </div>
+        </nav>
+
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-core">
+                <table class="table table-bordered table-striped table-hover clickable-row table-sm table-responsive-sm">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Type</td>
+                            <td>Model</td>
+                            <td>Manufacturer</td>
+                            <td>Installed Capacity</td>
+                            <td>Used Capacity</td>
+                            <td>Remark</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var core in Model.CoreElements)
+                        {
+                            <tr>
+                                <td>@core.Name</td>
+                                <td>@core.Type</td>
+                                <td>@core.Model</td>
+                                <td>@core.Manufacturer</td>
+                                <td>@core.InstalledCapacity</td>
+                                <td>@core.UsedCapacity</td>
+                                <td>@core.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-remotes">remotes</div>
+            <div class="tab-pane fade" id="nav-accesses">...</div>
+            <div class="tab-pane fade" id="nav-pbx">...</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addCore" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Network Element (Core)</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddNE" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewNE.Name"></label>
+                                <input asp-for="NewNE.Name" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.Type"></label>
+                                <select asp-for="NewNE.Type" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreType))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.Model"></label>
+                                <select asp-for="NewNE.Model" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Model))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.Manufacturer"></label>
+                                <select asp-for="NewNE.Manufacturer" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Manufacturer))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewNE.InstalledCapacity"></label>
+                                <input asp-for="NewNE.InstalledCapacity" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.UsedCapacity"></label>
+                                <input asp-for="NewNE.UsedCapacity" class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="NewNE.Remark"></label>
+                                <textarea asp-for="NewNE.Remark" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" asp-for="NewNE.NetworkType" value="Core" />
+                    <input type="hidden" asp-for="NewNE.AbbreviationId" value="@Model.SelectedExchange.Id" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addRemote" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Network Element (Remote)</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddNE" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewNE.Type"></label>
+                                <select asp-for="NewNE.Type" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.RemoteType))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.Model"></label>
+                                <select asp-for="NewNE.Model" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Model))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.Manufacturer"></label>
+                                <select asp-for="NewNE.Manufacturer" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Manufacturer))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewNE.InstalledCapacity"></label>
+                                <input asp-for="NewNE.InstalledCapacity" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.UsedCapacity"></label>
+                                <input asp-for="NewNE.UsedCapacity" class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="NewNE.Remark"></label>
+                                <textarea asp-for="NewNE.Remark" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" asp-for="NewNE.NetworkType" value="Remote" />
+                    <input type="hidden" asp-for="NewNE.AbbreviationId" value="@Model.SelectedExchange.Id" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addAccess" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Network Element (Access)</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddNE" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewNE.Type"></label>
+                                <select asp-for="NewNE.Type" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.AccessType))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.Model"></label>
+                                <select asp-for="NewNE.Model" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Model))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.Manufacturer"></label>
+                                <select asp-for="NewNE.Manufacturer" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Manufacturer))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewNE.InstalledCapacity"></label>
+                                <input asp-for="NewNE.InstalledCapacity" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.UsedCapacity"></label>
+                                <input asp-for="NewNE.UsedCapacity" class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="NewNE.Remark"></label>
+                                <textarea asp-for="NewNE.Remark" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" asp-for="NewNE.NetworkType" value="Remote" />
+                    <input type="hidden" asp-for="NewNE.AbbreviationId" value="@Model.SelectedExchange.Id" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addPbx" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Network Element (PBX/IP-PBX)</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddNE" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewNE.Type"></label>
+                                <select asp-for="NewNE.Type" class="form-control">
+                                    <option value="PBX">PBX</option>
+                                    <option value="IP-PBX">IP-PBX</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewNE.Remark"></label>
+                                <textarea asp-for="NewNE.Remark" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" asp-for="NewNE.AbbreviationId" value="@Model.SelectedExchange.Id" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editExchange" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Exchange</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditExchange" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label asp-for="SelectedExchange.Name"></label><br /><span asp-validation-for="SelectedExchange.Name" class="text-danger"></span>
+                        <input id="editName" asp-for="SelectedExchange.Name" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SelectedExchange.Abb"></label><br /><span asp-validation-for="SelectedExchange.Abb" class="text-danger"></span>
+                        <input id="editAbb" asp-for="SelectedExchange.Abb" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SelectedExchange.Area"></label>
+                        <select asp-for="SelectedExchange.Area" class="form-control">
+                            @for (int i = 2; i < 9; i++)
+                            {
+                                @if (i == (int)Model.SelectedDistrict)
+                                {
+                                    <option class="form-control" selected value="@Enum.GetName(typeof(Area),i)">Area @i</option>
+                                }
+                                else
+                                {
+                                    <option class="form-control" value="@Enum.GetName(typeof(Area),i)">Area @i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <input type="hidden" asp-for="SelectedExchange.Type" value="@AbbType.Exchange" />
+                    <input id="editId" type="hidden" asp-for="SelectedExchange.Id" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteExchange" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Exchange</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form asp-action="DeleteExchange" method="post">
+                    <input id="deleteAbb" type="hidden" name="abbreviation" value="@Model.SelectedExchange.Abb" />
+                    <input type="hidden" name="district" value="@Model.SelectedDistrict" />
+                    <button class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

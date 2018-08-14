@@ -13,8 +13,8 @@ namespace Sarona.Models
         {
             context = ctx;
         }
-        public IEnumerable<Abbreviation> Abbreviations => context.Abbreviations;
-        
+        public IQueryable<Abbreviation> Abbreviations => context.Abbreviations;
+        public IQueryable<Misc> Miscs => context.Miscs;
 
         public void AddAbbreviation(Abbreviation abb)
         {
@@ -24,9 +24,46 @@ namespace Sarona.Models
             context.SaveChanges();
         }
 
-        public void RemoveAbbreviation(long id)
+        public void RemoveAbbreviation(string abb)
         {
-            context.Abbreviations.Remove(new Abbreviation() { Id = id });
+            var del = context.Abbreviations.Where(x => x.Abb == abb).First();
+            context.Abbreviations.Remove(del);
+            context.SaveChanges();
+        }
+
+        internal void EditAbbreviation(Abbreviation editAbb)
+        {
+            //var abb = context.Abbreviations.Find(editAbb.Id);
+            //abb.Name = editAbb.Name;
+            //abb.Type = editAbb.Type;
+            //abb.Area = editAbb.Area;
+            context.Abbreviations.Update(editAbb);
+            context.SaveChanges();
+
+        }
+
+        internal void AddNetworkElement(NetworkElement newNe)
+        {
+            switch (newNe.NetworkType)
+            {
+                case NeType.Core:
+                    break;
+                case NeType.Access:
+                    newNe.Name = $"Access{context.GetNexAccessSequenceValue()}";
+                    break;
+                case NeType.Remote:
+                    newNe.Name = $"Remote{context.GetNextRemoteSequenceValue()}";
+                    break;
+                case NeType.PBX:
+                    newNe.Name = $"PBX{context.GetNextPbxSequenceValue()}";
+                    break;
+                case NeType.IP_PBX:
+                    newNe.Name = $"IP-PBX{context.GetNextPbxSequenceValue()}";
+                    break;
+                default:
+                    break;
+            }
+            context.NetworkElements.Add(newNe);
             context.SaveChanges();
         }
     }

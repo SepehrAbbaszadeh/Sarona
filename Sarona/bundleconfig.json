@@ -10,7 +10,9 @@
     "inputFiles": [
       "wwwroot/js/jquery-3.3.1.min.js",
       "wwwroot/js/popper.js",
-      "wwwroot/js/bootstrap.min.js"
+      "wwwroot/js/bootstrap.min.js",
+      "wwwroot/js/jquery.validate.js",
+      "wwwroot/js/jquery.validate.unobtrusive.js"
     ]
   },
   {

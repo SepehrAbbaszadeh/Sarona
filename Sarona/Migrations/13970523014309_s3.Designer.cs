@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sarona.Models;
 
 namespace Sarona.Migrations
 {
     [DbContext(typeof(SaronaContext))]
-    partial class SaronaContextModelSnapshot : ModelSnapshot
+    [Migration("13970523014309_s3")]
+    partial class s3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -110,14 +112,13 @@ namespace Sarona.Migrations
 
                     b.Property<string>("Name");
 
-                    b.Property<int>("NetworkType");
+                    b.Property<int>("NeType");
 
                     b.Property<long?>("ParentId");
 
                     b.Property<string>("Remark");
 
-                    b.Property<string>("Type")
-                        .IsRequired();
+                    b.Property<string>("Type");
 
                     b.Property<int>("UsedCapacity");
 
