@@ -1,0 +1,205 @@
+﻿@model CoreViewModel
+@{
+    var deleteTarget = "";
+    var error = "";
+    ViewData["Title"] = Model.NE.Name;
+    if (Model.NE.LinksOnEnd1.Count() > 0)
+    {
+        error = $"There are {Model.NE.LinksOnEnd1.Count()} links.\n" + error;
+    }
+    if (Model.Numberings.Count() > 0)
+    {
+        error = $"There are {Model.Numberings.Count()} numbering ranges.\n" + error;
+    }
+    if (Model.NE.NetworkElements.Count() > 0)
+    {
+        error = $"There are {Model.NE.NetworkElements.Count()} children.\n" + error;
+    }
+    if (string.IsNullOrEmpty(error))
+    {
+        deleteTarget = "#deleteCore";
+    }
+    else
+    {
+        deleteTarget = "#deleteError";
+    }
+}
+<div class="row">
+    <div class="col-md-3">
+        <div class="list-group" id="v-pills-tab">
+            <a class="list-group-item list-group-item-action list-group-item-warning" asp-action="Exchange">Back to "@Model.NE.Exchange.Name"</a>
+            <a class="list-group-item list-group-item-action active" id="v-pills-links-tab" data-toggle="pill" href="#v-pills-links">Links</a>
+            <a class="list-group-item list-group-item-action" id="v-pills-numbering-tab" data-toggle="pill" href="#v-pills-numbering">Numbering</a>
+            <a class="list-group-item list-group-item-action" id="v-pills-remotes-tab" data-toggle="pill" href="#v-pills-remotes">Remotes</a>
+            <a class="list-group-item list-group-item-action" id="v-pills-accesses-tab" data-toggle="pill" href="#v-pills-accesses">Accesses</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <h3>@Model.NE.Name</h3>
+        <button type="button" class="btn btn-warning my-3" data-toggle="modal" data-target="#editCore">Edit "@Model.NE.Name"</button>
+        <button type="button" class="btn btn-danger my-3" data-toggle="modal" data-target="@deleteTarget">Delete "@Model.NE.Name"</button>
+        <div class="tab-content" id="v-pills-tabContent">
+            <div class="tab-pane fade show active" id="v-pills-links">
+                <partial name="_Links" model="Model.Links" />
+            </div>
+            <div class="tab-pane fade" id="v-pills-numbering">
+                @*<partial name="_Numbering" model="Model.NumberingPoolNetworkElements" />*@
+            </div>
+            <div class="tab-pane fade" id="v-pills-remotes">
+                @*<partial name="_Numbering" model="Model" />*@
+            </div>
+            <div class="tab-pane fade" id="v-pills-accesses">
+                @*<partial name="_Numbering" model="Model" />*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editCore" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit "@Model.NE.Name"</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditNe" method="post" onsubmit="NeNameValidation($('#NE_Name').val(),'@Model.NE.Name','neNameValidation')">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NE.Name"></label><div><span id="neNameValidation" class="text-danger"></span><span asp-validation-for="NE.Name" class="text-danger"></span></div>
+                                <input asp-for="NE.Name" class="form-control" onkeyup="NeNameValidation($('#NE_Name').val(),'@Model.NE.Name','neNameValidation')" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NE.Type"></label>
+                                <select asp-for="NE.Type" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreType))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NE.Model"></label>
+                                <select asp-for="NE.Model" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreModel))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NE.Manufacturer"></label>
+                                <select asp-for="NE.Manufacturer" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Manufacturer))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NE.InstalledCapacity"></label><div><span asp-validation-for="NE.InstalledCapacity" class="text-danger"></span></div>
+                                <input asp-for="NE.InstalledCapacity" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NE.UsedCapacity"></label><div><span asp-validation-for="NE.UsedCapacity" class="text-danger"></span></div>
+                                <input asp-for="NE.UsedCapacity" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NE.Remark"></label>
+                                <textarea asp-for="NE.Remark" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" asp-for="NE.NetworkType" />
+                    <input type="hidden" asp-for="NE.ExchangeId" />
+                    <input type="hidden" asp-for="NE.Id" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editCore" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit "@Model.NE.Name"</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditCore" method="post" onsubmit="NeNameValidation($('#NE_Name').val(),'@Model.NE.Name','neNameValidation')">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label asp-for="NE.Name"></label><div><span class="text-danger" id="neNameValidation"></span><span asp-validation-for="NE.Name" class="text-danger"></span></div>
+                        <input asp-for="NE.Name" class="form-control" onkeyup="NeNameValidation($('#NE_Name').val(),'@Model.NE.Name','neNameValidation')" />
+                    </div>                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (deleteTarget == "#deleteError")
+{
+    <div class="modal fade" id="deleteError" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fa-crosshairs">Error</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @error
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="modal fade" id="deleteCore" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Exchange</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure to delete "@Model.NE.Name"?
+                </div>
+                <div class="modal-footer">
+                    <form method="post" asp-action="DeleteNe">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input type="hidden" name="id" value="@Model.NE.Id" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

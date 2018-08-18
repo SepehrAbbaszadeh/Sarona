@@ -1,0 +1,193 @@
+﻿@model LinksViewModel
+
+@{
+    ViewData["Title"] = $"{Model.NE.Name} (Links)";
+}
+<div class="row">
+    <div class="@Settings.Col3">
+        <partial name="_NeMenu" model="new Tuple<string, NeType>(Model.NE.Exchange.Name, Model.NE.NetworkType)" />
+    </div>
+    <div class="@Settings.Col9">
+        <h3>@Model.NE.Name</h3>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        @if (TempData.Keys.Contains("message"))
+        {
+            <div class="alert alert-success">
+                @TempData["message"]
+            </div>
+
+        }
+        <button type="button" class="btn btn-primary my-3" data-toggle="modal" data-target="#addLink">Add Link</button>
+        <ul class="nav nav-tabs" id="links" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="core-tab" data-toggle="tab" href="#core">Core</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pbx-tab" data-toggle="tab" href="#pbx">PBX</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pbx-tab" data-toggle="tab" href="#ipPbx">IP-PBX</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="linksContent">
+            <div class="tab-pane fade show active" id="core">
+                <table class="@Settings.TableClickableClass">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Channel No</td>
+                            <td>Direction</td>
+                            <td>Type</td>
+                            <td>Created On</td>
+                            <td>Remark</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.Core))
+                        {
+                            <tr>
+                                <td>@link.End2.Name</td>
+                                <td>@link.Channels</td>
+                                <td>@link.Direction</td>
+                                <td>@link.Type</td>
+                                <td>@link.CreatedOn</td>
+                                <td>@link.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="pbx" role="tabpanel">
+                <table class="@Settings.TableClickableClass">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Channel No</td>
+                            <td>Direction</td>
+                            <td>Type</td>
+                            <td>Created On</td>
+                            <td>Remark</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.PBX))
+                        {
+                            <tr>
+                                <td>@link.End2.Name</td>
+                                <td>@link.Channels</td>
+                                <td>@link.Direction</td>
+                                <td>@link.Type</td>
+                                <td>@link.CreatedOn</td>
+                                <td>@link.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="ipPbx" role="tabpanel">
+                <table class="@Settings.TableClickableClass">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Channel No</td>
+                            <td>Direction</td>
+                            <td>Type</td>
+                            <td>Created On</td>
+                            <td>Remark</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.IP_PBX))
+                        {
+                            <tr>
+                                <td>@link.End2.Name</td>
+                                <td>@link.Channels</td>
+                                <td>@link.Direction</td>
+                                <td>@link.Type</td>
+                                <td>@link.CreatedOn</td>
+                                <td>@link.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addLink" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Link</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form asp-action="Links" method="post" onsubmit="return LinkChannelValidation($('#NewLink_Channels').val(), $('#NewLink_Type').val(), 'linkChannelValidation');">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="end2Area">End2 (Area)</label>
+                                <select id="end2Area" class="form-control" onchange="PopulateExchange($(this).val(),'end2Exchange');">
+                                    <option value="" disabled selected>Please select an area!</option>
+                                    <option value="A2">Area 2</option>
+                                    <option value="A3">Area 3</option>
+                                    <option value="A4">Area 4</option>
+                                    <option value="A5">Area 5</option>
+                                    <option value="A6">Area 6</option>
+                                    <option value="A7">Area 7</option>
+                                    <option value="A8">Area 8</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="end2Exchange">End2 (Exchange)</label>
+                                <select id="end2Exchange" class="form-control" onchange="PopulateNE($(this).val(),$('#end2Type').val(),'end2Ne')"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="end2Type">End2 (Type)</label>
+                                <select id="end2Type" class="form-control" onchange="PopulateNE($('#end2Exchange').val(),$(this).val(),'end2Ne')">
+                                    <option value="@NeType.Core">Core</option>
+                                    <option value="@NeType.PBX">PBX</option>
+                                    <option value="@NeType.IP_PBX">IP-PBX</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="end2Ne">End2 (NE)</label>
+                                <select required id="end2Ne" class="form-control" onchange="$('#NewLink_End2Id').val($(this).val());"></select>
+                            </div>
+                            <input type="hidden" asp-for="NewLink.End2Id" />
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewLink.Channels"></label><div><span id="linkChannelValidation" class="text-danger"></span><span asp-validation-for="NewLink.Channels" class="text-danger"></span></div>
+                                <input asp-for="NewLink.Channels" class="form-control" onkeyup="LinkChannelValidation($('#NewLink_Channels').val(), $('#NewLink_Type').val(), 'linkChannelValidation');" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewLink.Direction"></label><div><span asp-validation-for="NewLink.Direction" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewLink.Direction">
+                                    <option selected value="@LinkDirection.Bothway">@LinkDirection.Bothway</option>
+                                    <option value="@LinkDirection.Incoming">@LinkDirection.Incoming</option>
+                                    <option value="@LinkDirection.Outgoing">@LinkDirection.Outgoing</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewLink.Type"></label><div><span asp-validation-for="NewLink.Type" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewLink.Type" onchange="LinkChannelValidation($('#NewLink_Channels').val(),$('#NewLink_Type').val(),'linkChannelValidation')">
+                                    <option selected value="@LinkType.ISUP">@LinkType.ISUP</option>
+                                    <option value="@LinkType.SIP">@LinkType.SIP</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" asp-for="NewLink.End1Id" value="@Model.NE.Id" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Sarona.Models;
 
 namespace Sarona.Models
 {
@@ -14,32 +12,53 @@ namespace Sarona.Models
             context = ctx;
         }
         public IQueryable<Abbreviation> Abbreviations => context.Abbreviations;
+        public IQueryable<Exchange> Exchanges => context.Exchanges;
+        public IQueryable<Customer> Customers => context.Customers;
         public IQueryable<Misc> Miscs => context.Miscs;
+        public IQueryable<NetworkElement> NetworkElements => context.NetworkElements;
 
-        public void AddAbbreviation(Abbreviation abb)
+        public void AddExchange(Exchange exch)
         {
-            abb.Abb = abb.Abb.ToUpper();
-            abb.CreatedOn = DateTime.Now;
-            context.Abbreviations.Add(abb);
+            exch.Abb = exch.Abb.ToUpper();
+            exch.CreatedOn = DateTime.Now;
+            context.Exchanges.Add(exch);
             context.SaveChanges();
         }
 
-        public void RemoveAbbreviation(string abb)
+        public Exchange RemoveExchange(string abb)
         {
-            var del = context.Abbreviations.Where(x => x.Abb == abb).First();
-            context.Abbreviations.Remove(del);
+            var exch = context.Exchanges.Where(x => x.Abb == abb).FirstOrDefault();
+            context.Exchanges.Remove(exch);
+            context.SaveChanges();
+            return exch;
+        }
+
+        public Exchange RemoveExchange(int id)
+        {
+            var exch = context.Exchanges.Find(id);
+            context.Exchanges.Remove(exch);
+            context.SaveChanges();
+            return exch;
+        }
+
+        internal void AddCustomer(Customer newCustomer)
+        {
+            newCustomer.CreatedOn = DateTime.Now;
+            newCustomer.Abb = newCustomer.Abb.ToUpperInvariant();
+            context.Customers.Add(newCustomer);
             context.SaveChanges();
         }
 
-        internal void EditAbbreviation(Abbreviation editAbb)
+        internal void EditExchange(Exchange exch)
         {
-            //var abb = context.Abbreviations.Find(editAbb.Id);
-            //abb.Name = editAbb.Name;
-            //abb.Type = editAbb.Type;
-            //abb.Area = editAbb.Area;
-            context.Abbreviations.Update(editAbb);
+            context.Abbreviations.Update(exch);
             context.SaveChanges();
+        }
 
+        internal void AddRangeNetworkElement(IEnumerable<NetworkElement> range)
+        {
+            context.NetworkElements.AddRange(range);
+            context.SaveChanges();
         }
 
         internal void AddNetworkElement(NetworkElement newNe)
@@ -47,12 +66,13 @@ namespace Sarona.Models
             switch (newNe.NetworkType)
             {
                 case NeType.Core:
+                    newNe.Name = newNe.Name.ToUpperInvariant();
                     break;
                 case NeType.Access:
-                    newNe.Name = $"Access{context.GetNexAccessSequenceValue()}";
+                    newNe.Name = $"ACCESS{context.GetNexAccessSequenceValue()}";
                     break;
                 case NeType.Remote:
-                    newNe.Name = $"Remote{context.GetNextRemoteSequenceValue()}";
+                    newNe.Name = $"REMOTE{context.GetNextRemoteSequenceValue()}";
                     break;
                 case NeType.PBX:
                     newNe.Name = $"PBX{context.GetNextPbxSequenceValue()}";
@@ -65,6 +85,57 @@ namespace Sarona.Models
             }
             context.NetworkElements.Add(newNe);
             context.SaveChanges();
+        }
+
+        internal void DeleteNetworkElement(NetworkElement ne)
+        {
+            context.NetworkElements.Remove(ne);
+            context.SaveChanges();
+        }
+
+        internal void EditNetworkElement(NetworkElement ne)
+        {
+            context.NetworkElements.Update(ne);
+            context.SaveChanges();
+        }
+
+        internal void AddLink(Link newLink)
+        {
+            newLink.CreatedOn = DateTime.Now;
+            LinkDirection direction = LinkDirection.Bothway;
+            switch (newLink.Direction)
+            {
+                case LinkDirection.Incoming:
+                    direction = LinkDirection.Outgoing;
+                    break;
+                case LinkDirection.Outgoing:
+                    direction = LinkDirection.Incoming;
+                    break;
+                case LinkDirection.Bothway:
+                    direction = LinkDirection.Bothway;
+                    break;
+            }
+            context.Database.BeginTransaction();
+            context.Links.Add(newLink);
+            context.SaveChanges();
+
+            var otherLink = new Link()
+            {
+                Channels = newLink.Channels,
+                CreatedOn = newLink.CreatedOn,
+                Direction = direction,
+                End1Id = newLink.End2Id,
+                End2Id = newLink.End1Id,
+                OtherLinkId = newLink.Id,
+                Remark = newLink.Remark,
+                Type = newLink.Type
+            };
+
+            newLink.OtherLinkId = otherLink.Id;
+            context.Links.Add(otherLink);
+            context.Links.Update(newLink);
+            context.SaveChanges();
+            context.Database.CommitTransaction();
         }
     }
 }

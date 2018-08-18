@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Sarona.Models;
 
 namespace Sarona
@@ -28,29 +23,36 @@ namespace Sarona
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseDeveloperExceptionPage();
-            app.UseStatusCodePages();
+
+            if (env.IsDevelopment())
+            {
+                app.UseDatabaseErrorPage();
+                app.UseDeveloperExceptionPage();
+                app.UseStatusCodePages();
+            }
+            else
+            {
+                app.UseExceptionHandler();
+            }
+
             app.UseStaticFiles();
             app.UseMvc(rt =>
             {
-                //rt.MapRoute(
-                //    name: null,
-                //    template: "api/{controller}/{action}");
-                rt.MapRoute(
-                    name: null,
-                    template: "Network/{district:length(2)}/{exchange:maxlength(4)}/{action}",
-                    defaults: new { controller = "Network", action = "Exchange"});
-                rt.MapRoute(
-                    name: null,
-                    template: "Network/{district:length(2)}/{action}",
-                    defaults: new { controller = "Network", action = "District" });
+
 
                 rt.MapRoute(
-                    name: "Network",
-                    template: "Network/",
-                    defaults: new { controller = "Network", action = "District" });
-                
-                
+                    name: "Element",
+                    template: "Network/{district:length(2)}/{exchange}/{ne}/{action}",
+                    defaults: new { controller = "Network", action = "Links" });
+                rt.MapRoute(
+                    name: "Exchange",
+                    template: "Network/{district:length(2)}/{exchange}",
+                    defaults: new { controller = "Network", action = "Exchange" });
+                rt.MapRoute(
+                    name: "District",
+                    template: "Network/{district:length(2)}",
+                    defaults: new { controller = "Network", action = "District", district = Area.A2 });
+
                 rt.MapRoute(null, "{controller=Home}/{action=Index}");
             });
         }

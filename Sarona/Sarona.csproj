@@ -13,6 +13,44 @@
     <Compile Remove="Migrations\13970431060810_Initial.Designer.cs" />
     <Compile Remove="Migrations\13970431062020_Initial.cs" />
     <Compile Remove="Migrations\13970431062020_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970520091226_Initial.cs" />
+    <Compile Remove="Migrations\13970520091226_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970520162922_s1.cs" />
+    <Compile Remove="Migrations\13970520162922_s1.Designer.cs" />
+    <Compile Remove="Migrations\13970521082237_s2.cs" />
+    <Compile Remove="Migrations\13970521082237_s2.Designer.cs" />
+    <Compile Remove="Migrations\13970523014309_s3.cs" />
+    <Compile Remove="Migrations\13970523014309_s3.Designer.cs" />
+    <Compile Remove="Migrations\13970523043428_s4.cs" />
+    <Compile Remove="Migrations\13970523043428_s4.Designer.cs" />
+    <Compile Remove="Migrations\13970524022644_S_970524.cs" />
+    <Compile Remove="Migrations\13970524022644_S_970524.Designer.cs" />
+    <Compile Remove="Migrations\13970524072525_Initial.cs" />
+    <Compile Remove="Migrations\13970524072525_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970524072949_Initial.cs" />
+    <Compile Remove="Migrations\13970524072949_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970524073054_Initial.cs" />
+    <Compile Remove="Migrations\13970524073054_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970524082522_Initial.cs" />
+    <Compile Remove="Migrations\13970524082522_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970524090223_Initial.cs" />
+    <Compile Remove="Migrations\13970524090223_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970526053842_S970526_1.cs" />
+    <Compile Remove="Migrations\13970526053842_S970526_1.Designer.cs" />
+    <Compile Remove="Migrations\13970526064841_Initial.cs" />
+    <Compile Remove="Migrations\13970526064841_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970526070542_Initial.cs" />
+    <Compile Remove="Migrations\13970526070542_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970526071602_S1.cs" />
+    <Compile Remove="Migrations\13970526071602_S1.Designer.cs" />
+    <Compile Remove="Migrations\13970526072112_S1.cs" />
+    <Compile Remove="Migrations\13970526072112_S1.Designer.cs" />
+    <Compile Remove="Migrations\13970527141601_S970527.cs" />
+    <Compile Remove="Migrations\13970527141601_S970527.Designer.cs" />
+    <Compile Remove="Migrations\13970527171627_S970527_1.cs" />
+    <Compile Remove="Migrations\13970527171627_S970527_1.Designer.cs" />
+    <Compile Remove="Migrations\13970527172044_Initial.cs" />
+    <Compile Remove="Migrations\13970527172044_Initial.Designer.cs" />
     <Compile Remove="Migrations\20180711031223_Initial.cs" />
     <Compile Remove="Migrations\20180711031223_Initial.Designer.cs" />
   </ItemGroup>
@@ -20,6 +58,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>

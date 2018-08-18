@@ -9,7 +9,7 @@ namespace Sarona.ViewModels
     public class ExchangeViewModel
     {
         public Area SelectedDistrict { get; set; }
-        public Abbreviation SelectedExchange { get; set; }
+        public Exchange SelectedExchange { get; set; }
         public IEnumerable<Abbreviation> Exchanges { get; set; }
         public IEnumerable<NetworkElement> CoreElements => SelectedExchange.NetworkElements.Where(x => x.NetworkType == NeType.Core);
         public IEnumerable<NetworkElement> Remotes => SelectedExchange.NetworkElements.Where(x => x.NetworkType == NeType.Remote);

@@ -9,8 +9,13 @@ namespace Sarona.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateSequence(
-                name: "LinkSequence",
-                incrementBy: 2);
+                name: "AccessSequence");
+
+            migrationBuilder.CreateSequence(
+                name: "PbxSequence");
+
+            migrationBuilder.CreateSequence(
+                name: "RemoteSequence");
 
             migrationBuilder.CreateTable(
                 name: "Abbreviations",
@@ -18,15 +23,29 @@ namespace Sarona.Migrations
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Type = table.Column<int>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Abb = table.Column<string>(nullable: false),
-                    Area = table.Column<int>(nullable: true),
-                    CreatedOn = table.Column<DateTime>(nullable: false)
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    Discriminator = table.Column<string>(nullable: false),
+                    Area = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Abbreviations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Miscs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Type = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Miscs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,24 +79,32 @@ namespace Sarona.Migrations
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true),
-                    Type = table.Column<string>(nullable: true),
-                    Manufacturer = table.Column<string>(nullable: true),
-                    Model = table.Column<string>(nullable: true),
-                    AbbreviationId = table.Column<long>(nullable: false),
+                    NetworkType = table.Column<int>(nullable: false),
+                    Type = table.Column<string>(nullable: false),
+                    Manufacturer = table.Column<string>(nullable: false),
+                    Model = table.Column<string>(nullable: false),
+                    ExchangeId = table.Column<long>(nullable: false),
                     InstalledCapacity = table.Column<int>(nullable: false),
                     UsedCapacity = table.Column<int>(nullable: false),
                     ParentId = table.Column<long>(nullable: true),
-                    Remark = table.Column<string>(nullable: true)
+                    Remark = table.Column<string>(nullable: true),
+                    CustomerId = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_NetworkElements", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_NetworkElements_Abbreviations_AbbreviationId",
-                        column: x => x.AbbreviationId,
+                        name: "FK_NetworkElements_Abbreviations_CustomerId",
+                        column: x => x.CustomerId,
                         principalTable: "Abbreviations",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_NetworkElements_Abbreviations_ExchangeId",
+                        column: x => x.ExchangeId,
+                        principalTable: "Abbreviations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_NetworkElements_NetworkElements_ParentId",
                         column: x => x.ParentId,
@@ -93,13 +120,13 @@ namespace Sarona.Migrations
                     Id = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Type = table.Column<int>(nullable: false),
-                    ChannelNo = table.Column<int>(nullable: false),
+                    Channels = table.Column<int>(nullable: false),
                     Direction = table.Column<int>(nullable: false),
                     End1Id = table.Column<long>(nullable: false),
                     End2Id = table.Column<long>(nullable: false),
                     CreatedOn = table.Column<DateTime>(nullable: false),
                     Remark = table.Column<string>(nullable: true),
-                    OtherLinkId = table.Column<long>(nullable: false)
+                    OtherLinkId = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -139,14 +166,20 @@ namespace Sarona.Migrations
                         column: x => x.NetworkElementId,
                         principalTable: "NetworkElements",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_NumberingPoolNetworkElement_NumberingPools_NumberingPoolId",
                         column: x => x.NumberingPoolId,
                         principalTable: "NumberingPools",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Abbreviations_Abb",
+                table: "Abbreviations",
+                column: "Abb",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Links_End1Id",
@@ -164,9 +197,21 @@ namespace Sarona.Migrations
                 column: "OtherLinkId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NetworkElements_AbbreviationId",
+                name: "IX_NetworkElements_CustomerId",
                 table: "NetworkElements",
-                column: "AbbreviationId");
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NetworkElements_ExchangeId",
+                table: "NetworkElements",
+                column: "ExchangeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NetworkElements_Name",
+                table: "NetworkElements",
+                column: "Name",
+                unique: true,
+                filter: "[Name] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NetworkElements_ParentId",
@@ -185,6 +230,9 @@ namespace Sarona.Migrations
                 name: "Links");
 
             migrationBuilder.DropTable(
+                name: "Miscs");
+
+            migrationBuilder.DropTable(
                 name: "NumberingPoolNetworkElement");
 
             migrationBuilder.DropTable(
@@ -197,7 +245,13 @@ namespace Sarona.Migrations
                 name: "Abbreviations");
 
             migrationBuilder.DropSequence(
-                name: "LinkSequence");
+                name: "AccessSequence");
+
+            migrationBuilder.DropSequence(
+                name: "PbxSequence");
+
+            migrationBuilder.DropSequence(
+                name: "RemoteSequence");
         }
     }
 }

@@ -17,7 +17,9 @@ namespace Sarona.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("Relational:Sequence:.LinkSequence", "'LinkSequence', '', '1', '2', '', '', 'Int64', 'False'")
+                .HasAnnotation("Relational:Sequence:.AccessSequence", "'AccessSequence', '', '1', '1', '', '', 'Int64', 'False'")
+                .HasAnnotation("Relational:Sequence:.PbxSequence", "'PbxSequence', '', '1', '1', '', '', 'Int64', 'False'")
+                .HasAnnotation("Relational:Sequence:.RemoteSequence", "'RemoteSequence', '', '1', '1', '', '', 'Int64', 'False'")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Sarona.Models.Abbreviation", b =>
@@ -29,14 +31,13 @@ namespace Sarona.Migrations
                     b.Property<string>("Abb")
                         .IsRequired();
 
-                    b.Property<int?>("Area");
-
                     b.Property<DateTime>("CreatedOn");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired();
 
                     b.Property<string>("Name")
                         .IsRequired();
-
-                    b.Property<int>("Type");
 
                     b.HasKey("Id");
 
@@ -44,6 +45,8 @@ namespace Sarona.Migrations
                         .IsUnique();
 
                     b.ToTable("Abbreviations");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Abbreviation");
                 });
 
             modelBuilder.Entity("Sarona.Models.Link", b =>
@@ -52,7 +55,7 @@ namespace Sarona.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ChannelNo");
+                    b.Property<int>("Channels");
 
                     b.Property<DateTime>("CreatedOn");
 
@@ -62,7 +65,7 @@ namespace Sarona.Migrations
 
                     b.Property<long>("End2Id");
 
-                    b.Property<long>("OtherLinkId");
+                    b.Property<long?>("OtherLinkId");
 
                     b.Property<string>("Remark");
 
@@ -100,13 +103,17 @@ namespace Sarona.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("AbbreviationId");
+                    b.Property<long?>("CustomerId");
+
+                    b.Property<long>("ExchangeId");
 
                     b.Property<int>("InstalledCapacity");
 
-                    b.Property<string>("Manufacturer");
+                    b.Property<string>("Manufacturer")
+                        .IsRequired();
 
-                    b.Property<string>("Model");
+                    b.Property<string>("Model")
+                        .IsRequired();
 
                     b.Property<string>("Name");
 
@@ -123,7 +130,13 @@ namespace Sarona.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AbbreviationId");
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ExchangeId");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
 
                     b.HasIndex("ParentId");
 
@@ -178,6 +191,27 @@ namespace Sarona.Migrations
                     b.ToTable("NumberingPoolNetworkElement");
                 });
 
+            modelBuilder.Entity("Sarona.Models.Customer", b =>
+                {
+                    b.HasBaseType("Sarona.Models.Abbreviation");
+
+
+                    b.ToTable("Customer");
+
+                    b.HasDiscriminator().HasValue("Customer");
+                });
+
+            modelBuilder.Entity("Sarona.Models.Exchange", b =>
+                {
+                    b.HasBaseType("Sarona.Models.Abbreviation");
+
+                    b.Property<int>("Area");
+
+                    b.ToTable("Exchange");
+
+                    b.HasDiscriminator().HasValue("Exchange");
+                });
+
             modelBuilder.Entity("Sarona.Models.Link", b =>
                 {
                     b.HasOne("Sarona.Models.NetworkElement", "End1")
@@ -198,14 +232,20 @@ namespace Sarona.Migrations
 
             modelBuilder.Entity("Sarona.Models.NetworkElement", b =>
                 {
-                    b.HasOne("Sarona.Models.Abbreviation", "Abbreviation")
+                    b.HasOne("Sarona.Models.Customer", "Customer")
+                        .WithMany("Owned")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Sarona.Models.Exchange", "Exchange")
                         .WithMany("NetworkElements")
-                        .HasForeignKey("AbbreviationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ExchangeId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Sarona.Models.NetworkElement", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId");
+                        .WithMany("NetworkElements")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Sarona.Models.NumberingPoolNetworkElement", b =>
@@ -213,12 +253,12 @@ namespace Sarona.Migrations
                     b.HasOne("Sarona.Models.NetworkElement", "Element")
                         .WithMany("NumberingPoolNetworkElements")
                         .HasForeignKey("NetworkElementId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Sarona.Models.NumberingPool", "Numbering")
                         .WithMany("NumberingPoolNetworkElements")
                         .HasForeignKey("NumberingPoolId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

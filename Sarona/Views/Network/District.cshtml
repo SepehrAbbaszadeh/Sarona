@@ -31,7 +31,7 @@
 }
 
 <div class="row">
-    <div class="col-md-3">
+    <div class="@Settings.Col3">
         <div class="list-group">
             <a asp-action="District" asp-route-district="A2" class="list-group-item list-group-item-action @active[0]">Area 2</a>
             <a asp-action="District" asp-route-district="A3" class="list-group-item list-group-item-action @active[1]">Area 3</a>
@@ -42,7 +42,7 @@
             <a asp-action="District" asp-route-district="A8" class="list-group-item list-group-item-action @active[6]">Area 8</a>
         </div>
     </div>
-    <div class="col-md-9">
+    <div class="@Settings.Col9">
         <h3>Area @Convert.ToInt32(Model.SelectedDistrict)</h3>
         <div asp-validation-summary="All" class="text-danger"></div>
         @if (TempData.Keys.Contains("message"))
@@ -54,7 +54,7 @@
         }
 
         <button class="btn btn-primary my-3" data-toggle="modal" data-target="#addExchange">Add Exchange</button>
-        <table class="table table-bordered table-striped table-hover clickable-row table-sm table-responsive-sm">
+        <table class="@Settings.TableClickableClass">
             <thead>
                 <tr>
                     <th>Abbreviation</th>
@@ -76,8 +76,6 @@
     </div>
 </div>
 
-
-
 <div class="modal fade" id="addExchange" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -87,18 +85,17 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="AddExchange" method="post">
+            <form asp-action="District" method="post" onsubmit="return AbbValidation($('#NewExchange_Abb').val(), '', 'abbValidation');">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label asp-for="SelectedExchange.Name"></label><div><span asp-validation-for="SelectedExchange.Name" class="text-danger"></span></div>
-                        <input asp-for="SelectedExchange.Name" class="form-control" />
+                        <label asp-for="NewExchange.Name"></label><div><span asp-validation-for="NewExchange.Name" class="text-danger"></span></div>
+                        <input asp-for="NewExchange.Name" class="form-control" />
                     </div>
                     <div class="form-group">
-                        <label asp-for="SelectedExchange.Abb"></label><div><span asp-validation-for="SelectedExchange.Abb" class="text-danger"></span></div>
-                        <input asp-for="SelectedExchange.Abb" class="form-control" />
+                        <label asp-for="NewExchange.Abb"></label><div><span class="text-danger" id="abbValidation"></span><span asp-validation-for="NewExchange.Abb" class="text-danger"></span></div>
+                        <input asp-for="NewExchange.Abb" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')"/>
                     </div>
-                    <input type="hidden" asp-for="SelectedExchange.Area" value="@Model.SelectedDistrict" />
-                    <input type="hidden" asp-for="SelectedExchange.Type" value="@AbbType.Exchange" />
+                    <input type="hidden" asp-for="NewExchange.Area" value="@Model.SelectedDistrict" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿
+@{ 
+    var selectedController = ViewContext.RouteData.Values["controller"].ToString().ToLower();
+
+}
+
+
+<!DOCTYPE html>
 <html>
 <head>
 
@@ -14,25 +21,25 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-xl navbar-dark bg-primary fixed-top">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">سامانه نامبرینگ و روتینگ - سارونا</a>
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">سامانه روتینگ و نامبرینگ - سارونا</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                    <li class="nav-item active">
+                    <li class="nav-item @(selectedController=="home"?"active":"")">
                         <a class="nav-link" href="#">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Network">Network</a>
+                    <li class="nav-item @(selectedController=="network"?"active":"")">
+                        <a class="nav-link" asp-controller="Network" asp-action="District">Network</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">CRM</a>
+                    <li class="nav-item @(selectedController=="crm"?"active":"")">
+                        <a class="nav-link" asp-action="Customers" asp-controller="Crm">CRM</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item @(selectedController=="numbering"?"active":"")">
                         <a class="nav-link" href="#">Numbering</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item @(selectedController=="reports"?"active":"")">
                         <a class="nav-link" href="#">Reports</a>
                     </li>
                     <li class="nav-item dropdown">

@@ -9,9 +9,11 @@ namespace Sarona.Models
     {
         Manufacturer,
         CoreType,
-        RemoteType,
+        CoreModel,
         AccessType,
-        Model
+        AccessModel,
+        RemoteType,
+        RemoteModel
     }
     public class Misc
     {

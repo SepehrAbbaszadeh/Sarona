@@ -2,11 +2,21 @@
 @{
     string active = "";
     ViewData["Title"] = $"{Model.SelectedExchange.Abb} ({Model.SelectedExchange.Name})";
+    string deleteId;
+    if (Model.SelectedExchange.NetworkElements.Count() > 0)
+    {
+        deleteId = "cannotDelete";
+    }
+    else
+    {
+        deleteId = "deleteExchange";
+    }
 }
 
 <div class="row">
-    <div class="col-md-3">
+    <div class="@Settings.Col3">
         <div class="list-group">
+            <a asp-action="District" class="list-group-item list-group-item-warning list-group-item-action">Back to "@Model.SelectedDistrict"</a>
             @foreach (var exch in Model.Exchanges)
             {
 
@@ -22,7 +32,7 @@
             }
         </div>
     </div>
-    <div class="col-md-9">
+    <div class="@Settings.Col9">
         <h3>@Model.SelectedExchange.Abb (@Model.SelectedExchange.Name)</h3>
         @if (TempData.Keys.Contains("message"))
         {
@@ -36,32 +46,33 @@
             <div asp-validation-summary="All" class="alert alert-danger"></div>
 
         }
-            <div class="dropdown">
-                <button type="button" class="btn btn-primary dropdown-toggle my-3" data-toggle="dropdown">
-                    Add Network Element
-                </button>
-                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#editExchange">Edit "@Model.SelectedExchange.Name"</button>
-                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteExchange">Delete "@Model.SelectedExchange.Name"</button>
-                <div class="dropdown-menu">
-                    <a href="#" class="dropdown-item" data-toggle="modal" data-target="#addCore">Core</a>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addRemote">Remote</a>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAccess">Access</a>
-                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPbx">PBX/IP-PBX</a>
-                </div>
+        <div class="dropdown">
+            <button type="button" class="btn btn-primary dropdown-toggle my-3" data-toggle="dropdown">
+                Add Network Element
+            </button>
+            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#editExchange">Edit "@Model.SelectedExchange.Name"</button>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#@deleteId">Delete "@Model.SelectedExchange.Name"</button>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item" data-toggle="modal" data-target="#addCore">Core</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addRemote">Remote</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAccess">Access</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPbx">PBX/IP-PBX</a>
             </div>
-        
+        </div>
+
         <nav>
             <div class="nav nav-tabs" id="nav-tab">
                 <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-core">Core</a>
                 <a class="nav-item nav-link" id="nav-remotes-tab" data-toggle="tab" href="#nav-remotes">Remotes</a>
                 <a class="nav-item nav-link" id="nav-accesses-tab" data-toggle="tab" href="#nav-accesses">Access</a>
                 <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-pbx">PBX</a>
+                <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-ip-pbx">IP-PBX</a>
             </div>
         </nav>
 
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-core">
-                <table class="table table-bordered table-striped table-hover clickable-row table-sm table-responsive-sm">
+                <table class="@Settings.TableClickableClass">
                     <thead>
                         <tr>
                             <td>Name</td>
@@ -77,7 +88,7 @@
                         @foreach (var core in Model.CoreElements)
                         {
                             <tr>
-                                <td>@core.Name</td>
+                                <td><a asp-action="Links" asp-route-ne="@core.Name">@core.Name</a></td>
                                 <td>@core.Type</td>
                                 <td>@core.Model</td>
                                 <td>@core.Manufacturer</td>
@@ -89,9 +100,117 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tab-pane fade" id="nav-remotes">remotes</div>
-            <div class="tab-pane fade" id="nav-accesses">...</div>
-            <div class="tab-pane fade" id="nav-pbx">...</div>
+            <div class="tab-pane fade" id="nav-remotes">
+                <table class="@Settings.TableClickableClass">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Type</td>
+                            <td>Model</td>
+                            <td>Manufacturer</td>
+                            <td>Installed Capacity</td>
+                            <td>Used Capacity</td>
+                            <td>Parent</td>
+                            <td>Remark</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var remote in Model.Remotes)
+                        {
+                            <tr>
+                                <td>@remote.Name</td>
+                                <td>@remote.Type</td>
+                                <td>@remote.Model</td>
+                                <td>@remote.Manufacturer</td>
+                                <td>@remote.InstalledCapacity</td>
+                                <td>@remote.UsedCapacity</td>
+                                <td>@remote.Parent.Name</td>
+                                <td>@remote.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-accesses">
+                <table class="@Settings.TableClickableClass">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Type</td>
+                            <td>Model</td>
+                            <td>Manufacturer</td>
+                            <td>Installed Capacity</td>
+                            <td>Used Capacity</td>
+                            <td>Parent</td>
+                            <td>Remark</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var access in Model.Accesses)
+                        {
+                            <tr>
+                                <td>@access.Name</td>
+                                <td>@access.Type</td>
+                                <td>@access.Model</td>
+                                <td>@access.Manufacturer</td>
+                                <td>@access.InstalledCapacity</td>
+                                <td>@access.UsedCapacity</td>
+                                <td>@access.Parent.Name</td>
+                                <td>@access.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-pbx">
+                <table class="@Settings.TableClickableClass">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Type</td>
+                            <td>Customer Abbreviation</td>
+                            <td>Customer Name</td>
+                            <td>Remark</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pbx in Model.Pbxs)
+                        {
+                            <tr>
+                                <td>@pbx.Name</td>
+                                <td>@pbx.Type</td>
+                                <td>@pbx.Customer.Abb</td>
+                                <td>@pbx.Customer.Name</td>
+                                <td>@pbx.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="nav-ip-pbx">
+                <table class="@Settings.TableClickableClass">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Type</td>
+                            <td>Customer Abbreviation</td>
+                            <td>Customer Name</td>
+                            <td>Remark</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ipPbx in Model.IpPbxs)
+                        {
+                            <tr>
+                                <td>@ipPbx.Name</td>
+                                <td>@ipPbx.Customer.Abb</td>
+                                <td>@ipPbx.Customer.Name</td>
+                                <td>@ipPbx.Remark</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -105,13 +224,13 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="AddNE" method="post">
+            <form asp-action="Exchange" method="post" onsubmit="NeNameValidation($('#NewNE_Name').val(),'','neNameValidation')">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
-                                <label asp-for="NewNE.Name"></label>
-                                <input asp-for="NewNE.Name" class="form-control" />
+                                <label asp-for="NewNE.Name"></label><div><span id="neNameValidation" class="text-danger"></span><span asp-validation-for="NewNE.Name" class="text-danger"></span></div>
+                                <input asp-for="NewNE.Name" class="form-control" onkeyup="NeNameValidation($('#NewNE_Name').val(),'','neNameValidation')"/>
                             </div>
                             <div class="form-group">
                                 <label asp-for="NewNE.Type"></label>
@@ -125,12 +244,14 @@
                             <div class="form-group">
                                 <label asp-for="NewNE.Model"></label>
                                 <select asp-for="NewNE.Model" class="form-control">
-                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Model))
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreModel))
                                     {
                                         <option value="@item.Name">@item.Name</option>
                                     }
                                 </select>
                             </div>
+                        </div>
+                        <div class="col">
                             <div class="form-group">
                                 <label asp-for="NewNE.Manufacturer"></label>
                                 <select asp-for="NewNE.Manufacturer" class="form-control">
@@ -140,17 +261,18 @@
                                     }
                                 </select>
                             </div>
-                        </div>
-                        <div class="col">
                             <div class="form-group">
-                                <label asp-for="NewNE.InstalledCapacity"></label>
+                                <label asp-for="NewNE.InstalledCapacity"></label><div><span asp-validation-for="NewNE.InstalledCapacity" class="text-danger"></span></div>
                                 <input asp-for="NewNE.InstalledCapacity" class="form-control" />
                             </div>
                             <div class="form-group">
-                                <label asp-for="NewNE.UsedCapacity"></label>
+                                <label asp-for="NewNE.UsedCapacity"></label><div><span asp-validation-for="NewNE.UsedCapacity" class="text-danger"></span></div>
                                 <input asp-for="NewNE.UsedCapacity" class="form-control" />
                             </div>
-
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
                             <div class="form-group">
                                 <label asp-for="NewNE.Remark"></label>
                                 <textarea asp-for="NewNE.Remark" class="form-control"></textarea>
@@ -159,8 +281,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" asp-for="NewNE.NetworkType" value="Core" />
-                    <input type="hidden" asp-for="NewNE.AbbreviationId" value="@Model.SelectedExchange.Id" />
+                    <input type="hidden" asp-for="NewNE.NetworkType" value="@NeType.Core" />
+                    <input type="hidden" asp-for="NewNE.ExchangeId" value="@Model.SelectedExchange.Id" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
@@ -193,7 +315,7 @@
                             <div class="form-group">
                                 <label asp-for="NewNE.Model"></label>
                                 <select asp-for="NewNE.Model" class="form-control">
-                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Model))
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.RemoteModel))
                                     {
                                         <option value="@item.Name">@item.Name</option>
                                     }
@@ -211,14 +333,40 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label asp-for="NewNE.InstalledCapacity"></label>
+                                <label>Parent (Area)</label>
+                                <select class="form-control" onchange="$('#remoteNE').text('');PopulateExchange($(this).val(),'remoteExchange');">
+                                    <option value="" disabled selected>Please select an area!</option>
+                                    <option value="A2">Area 2</option>
+                                    <option value="A3">Area 3</option>
+                                    <option value="A4">Area 4</option>
+                                    <option value="A5">Area 5</option>
+                                    <option value="A6">Area 6</option>
+                                    <option value="A7">Area 7</option>
+                                    <option value="A8">Area 8</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parent (Exchange)</label>
+                                <select class="form-control" id="remoteExchange" onchange="PopulateNE($(this).val(), 'Core' ,'remoteNE')"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parent (NE)</label>
+                                <select required asp-for="NewNE.ParentId" class="form-control" id="remoteNE"></select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewNE.InstalledCapacity"></label><div><span asp-validation-for="NewNE.InstalledCapacity" class="text-danger"></span></div>
                                 <input asp-for="NewNE.InstalledCapacity" class="form-control" />
                             </div>
                             <div class="form-group">
-                                <label asp-for="NewNE.UsedCapacity"></label>
+                                <label asp-for="NewNE.UsedCapacity"></label><div><span asp-validation-for="NewNE.UsedCapacity" class="text-danger"></span></div>
                                 <input asp-for="NewNE.UsedCapacity" class="form-control" />
                             </div>
-
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
                             <div class="form-group">
                                 <label asp-for="NewNE.Remark"></label>
                                 <textarea asp-for="NewNE.Remark" class="form-control"></textarea>
@@ -227,8 +375,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" asp-for="NewNE.NetworkType" value="Remote" />
-                    <input type="hidden" asp-for="NewNE.AbbreviationId" value="@Model.SelectedExchange.Id" />
+                    <input type="hidden" asp-for="NewNE.NetworkType" value="@NeType.Remote" />
+                    <input type="hidden" asp-for="NewNE.Name" value="Remote" />
+                    <input type="hidden" asp-for="NewNE.ExchangeId" value="@Model.SelectedExchange.Id" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
@@ -261,7 +410,7 @@
                             <div class="form-group">
                                 <label asp-for="NewNE.Model"></label>
                                 <select asp-for="NewNE.Model" class="form-control">
-                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Model))
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.AccessModel))
                                     {
                                         <option value="@item.Name">@item.Name</option>
                                     }
@@ -279,6 +428,29 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
+                                <label>Parent (Area)</label>
+                                <select class="form-control" onchange="$('#acessNE').text('');PopulateExchange($(this).val(),'accessExchange');">
+                                    <option value="" disabled selected>Please select an area!</option>
+                                    <option value="A2">Area 2</option>
+                                    <option value="A3">Area 3</option>
+                                    <option value="A4">Area 4</option>
+                                    <option value="A5">Area 5</option>
+                                    <option value="A6">Area 6</option>
+                                    <option value="A7">Area 7</option>
+                                    <option value="A8">Area 8</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parent (Exchange)</label>
+                                <select class="form-control" id="accessExchange" onchange="PopulateNE($(this).val(), 'Core' ,'accessNE')"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Parent (NE)</label>
+                                <select required asp-for="NewNE.ParentId" class="form-control" id="accessNE"></select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
                                 <label asp-for="NewNE.InstalledCapacity"></label>
                                 <input asp-for="NewNE.InstalledCapacity" class="form-control" />
                             </div>
@@ -286,7 +458,10 @@
                                 <label asp-for="NewNE.UsedCapacity"></label>
                                 <input asp-for="NewNE.UsedCapacity" class="form-control" />
                             </div>
-
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
                             <div class="form-group">
                                 <label asp-for="NewNE.Remark"></label>
                                 <textarea asp-for="NewNE.Remark" class="form-control"></textarea>
@@ -295,8 +470,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" asp-for="NewNE.NetworkType" value="Remote" />
-                    <input type="hidden" asp-for="NewNE.AbbreviationId" value="@Model.SelectedExchange.Id" />
+                    <input type="hidden" asp-for="NewNE.NetworkType" value="@NeType.Access" />
+                    <input type="hidden" asp-for="NewNE.ExchangeId" value="@Model.SelectedExchange.Id" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
@@ -304,9 +479,8 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="addPbx" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Network Element (PBX/IP-PBX)</h5>
@@ -319,11 +493,18 @@
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
-                                <label asp-for="NewNE.Type"></label>
-                                <select asp-for="NewNE.Type" class="form-control">
-                                    <option value="PBX">PBX</option>
-                                    <option value="IP-PBX">IP-PBX</option>
+                                <label asp-for="NewNE.NetworkType"></label>
+                                <select id="newPbxNetworkType" asp-for="NewNE.NetworkType" class="form-control" onchange="changePbxType();">
+                                    <option value="@NeType.PBX">PBX</option>
+                                    <option value="@NeType.IP_PBX">IP-PBX</option>
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Customer</label>
+                                <input class="form-control" type="search" placeholder="Search customer name" onkeyup="PopulateCustomer($(this).val(),'pbxCustomerId')" />
+                            </div>
+                            <div class="form-group">
+                                <select required class="form-control" asp-for="NewNE.CustomerId" id="pbxCustomerId"></select>
                             </div>
                             <div class="form-group">
                                 <label asp-for="NewNE.Remark"></label>
@@ -333,7 +514,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" asp-for="NewNE.AbbreviationId" value="@Model.SelectedExchange.Id" />
+                    <input id="newPbxType" type="hidden" asp-for="NewNE.Type" value="PBX" />
+                    <input type="hidden" asp-for="NewNE.ExchangeId" value="@Model.SelectedExchange.Id" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
@@ -341,25 +523,24 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="editExchange" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Exchange</h5>
+                <h5 class="modal-title">Edit "@Model.SelectedExchange.Name"</h5>
                 <button type="button" class="close" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="EditExchange" method="post">
+            <form asp-action="EditExchange" method="post" onsubmit="return AbbValidation($('#SelectedExchange_Abb').val(), '@Model.SelectedExchange.Abb' , 'abbValidation');">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label asp-for="SelectedExchange.Name"></label><br /><span asp-validation-for="SelectedExchange.Name" class="text-danger"></span>
+                        <label asp-for="SelectedExchange.Name"></label><span asp-validation-for="SelectedExchange.Name" class="text-danger"></span>
                         <input id="editName" asp-for="SelectedExchange.Name" class="form-control" />
                     </div>
                     <div class="form-group">
-                        <label asp-for="SelectedExchange.Abb"></label><br /><span asp-validation-for="SelectedExchange.Abb" class="text-danger"></span>
-                        <input id="editAbb" asp-for="SelectedExchange.Abb" class="form-control" />
+                        <label asp-for="SelectedExchange.Abb"></label><div><span class="text-danger" id="abbValidation"></span><span asp-validation-for="SelectedExchange.Abb" class="text-danger"></span></div>
+                        <input id="editAbb" asp-for="SelectedExchange.Abb" class="form-control" onkeyup="AbbValidation($(this).val(),'@Model.SelectedExchange.Abb','abbValidation')" />
                     </div>
                     <div class="form-group">
                         <label asp-for="SelectedExchange.Area"></label>
@@ -377,8 +558,7 @@
                             }
                         </select>
                     </div>
-                    <input type="hidden" asp-for="SelectedExchange.Type" value="@AbbType.Exchange" />
-                    <input id="editId" type="hidden" asp-for="SelectedExchange.Id" value="" />
+                    <input type="hidden" asp-for="SelectedExchange.Id" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -388,7 +568,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="deleteExchange" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -402,13 +581,42 @@
                 Are you sure?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form asp-action="DeleteExchange" method="post">
-                    <input id="deleteAbb" type="hidden" name="abbreviation" value="@Model.SelectedExchange.Abb" />
+                <form method="post" asp-action="DeleteExchange">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="hidden" name="exchange" value="@Model.SelectedExchange.Abb" />
                     <input type="hidden" name="district" value="@Model.SelectedDistrict" />
-                    <button class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="cannotDelete" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Error</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                There are @Model.SelectedExchange.NetworkElements.Count() NE in "@Model.SelectedExchange.Name".
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        function changePbxType() {
+
+            var selectedValue = $("#newPbxNetworkType").val();
+            $("#newPbxType").val(selectedValue);
+        }
+    </script>
+}
