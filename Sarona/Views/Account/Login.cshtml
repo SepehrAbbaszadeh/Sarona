@@ -1,0 +1,56 @@
+﻿@model LoginModel
+@{
+    Layout = null;
+}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Traffic & numbering department">
+    <meta name="author" content="Sepehr Abbaszadeh">
+    <link rel="icon" href="~/img/tci_logo_black_icon.ico">
+    <title>Login - Sarona</title>
+    <link href="~/css/main.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/site.min.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body class="bg-dark">
+            <div class="d-flex justify-content-center" style="padding-top:23vh; padding-bottom:70px;">
+                <div class="card bg-light" style="width: 40vw;height:50%">
+                    <div class="card-body">
+                        <h5 class="card-title text-center font-weight-bold ">سامانه روتینگ و نامبرینگ</h5>
+                        <h5 class="card-title text-center font-weight-bold ">(سارونا)</h5>
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <form asp-action="Login" method="post">
+                            <div class="form-group">
+                                <label asp-for="Username"></label>
+                                <input  class="form-control" asp-for="Username" required autofocus>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Password"></label>
+                                <input class="form-control" asp-for="Password" required data-eye>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="RememberMe" />
+                                <label class="form-check-label" asp-for="RememberMe"></label>
+                            </div>
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-primary btn-block mt-2">
+                                    Login
+                                </button>
+                            </div>
+                            <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <footer class="footer text-center small text-white p-2">
+            &copy;Traffic and Numbering Department <br />Powered by ASP.NET Core 2.1, Entity Framework 2.1 and Bootstrap 4.
+        </footer>
+    <script src="js/jquery.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/my-login.js"></script>
+</body>
+</html>
+
+

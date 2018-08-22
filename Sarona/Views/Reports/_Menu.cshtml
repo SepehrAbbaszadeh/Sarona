@@ -1,0 +1,9 @@
+﻿@{
+
+    var selectedAction = ViewContext.RouteData.Values["action"].ToString().ToLower();
+
+}
+<nav class="list-group">
+    <a class="list-group-item list-group-item-action @(selectedAction == "shenasname" ? "active":"")" asp-route="Shenasname">شناسنامه مراکز</a>
+    
+</nav>

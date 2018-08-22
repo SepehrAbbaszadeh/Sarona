@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sarona.Models;
@@ -10,13 +11,14 @@ using Sarona.Models;
 
 namespace Sarona.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        SaronaRepository repository;
-        public HomeController(SaronaRepository repo) => repository = repo;
+        //SaronaRepository repository;
+        //public HomeController(SaronaRepository repo) => repository = repo;
         public IActionResult Index()
         {
-            return Redirect("https://localhost:44350/Network/A2/MF/SS2B");
+            return View();
         }
     }
 }

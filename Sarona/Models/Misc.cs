@@ -7,13 +7,14 @@ namespace Sarona.Models
 {
     public enum MiscType
     {
-        Manufacturer,
-        CoreType,
-        CoreModel,
-        AccessType,
-        AccessModel,
-        RemoteType,
-        RemoteModel
+        Manufacturer=0,
+        CoreType=1,
+        CoreModel=2,
+        AccessType=3,
+        AccessModel=4,
+        RemoteType=5,
+        RemoteModel=6,
+        CoreOwner=7
     }
     public class Misc
     {

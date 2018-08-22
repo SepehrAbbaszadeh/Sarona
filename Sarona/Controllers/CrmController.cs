@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sarona.Models;
@@ -11,6 +12,7 @@ using Sarona.ViewModels;
 
 namespace Sarona.Controllers
 {
+    [Authorize]
     public class CrmController : Controller
     {
         SaronaRepository repository;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -39,6 +40,8 @@ namespace Sarona.Models
         public int InstalledCapacity { get; set; } 
         [Required]
         public int UsedCapacity { get; set; }
+        [Required]
+        public string Owner { get; set; }
         public long? ParentId { get; set; }
         public NetworkElement Parent { get; set; }
         public string Remark { get; set; }
@@ -48,5 +51,8 @@ namespace Sarona.Models
         public long? CustomerId { get; set; }
         public Customer Customer { get; set; }
         public IEnumerable<NetworkElement> NetworkElements { get; set; }
+        public DateTime ModifiedOn { get; set; }
+        public string Username { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

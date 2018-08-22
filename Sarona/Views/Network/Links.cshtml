@@ -1,7 +1,7 @@
 ﻿@model LinksViewModel
 
 @{
-    ViewData["Title"] = $"{Model.NE.Name} (Links)";
+    ViewData["Title"] = Model.NE.Name + " (" + ViewContext.RouteData.Values["action"].ToString() + ")";
 }
 <div class="row">
     <div class="@Settings.Col3">
@@ -17,7 +17,13 @@
             </div>
 
         }
+
         <button type="button" class="btn btn-primary my-3" data-toggle="modal" data-target="#addLink">Add Link</button>
+        <form id="getExcel" asp-action="Links" asp-controller="Reports" method="get">
+            <i onclick="$('#getExcel').submit()" class="fas fa-file-excel fa-2x float-right"></i>
+            <input type="hidden" name="name" value="@Model.NE.Name" />
+        </form>
+
         <ul class="nav nav-tabs" id="links" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active" id="core-tab" data-toggle="tab" href="#core">Core</a>
@@ -31,85 +37,105 @@
         </ul>
         <div class="tab-content" id="linksContent">
             <div class="tab-pane fade show active" id="core">
-                <table class="@Settings.TableClickableClass">
-                    <thead>
-                        <tr>
-                            <td>Name</td>
-                            <td>Channel No</td>
-                            <td>Direction</td>
-                            <td>Type</td>
-                            <td>Created On</td>
-                            <td>Remark</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.Core))
-                        {
+                <div class="table-responsive">
+                    <table class="@Settings.TableClass">
+                        <thead>
                             <tr>
-                                <td>@link.End2.Name</td>
-                                <td>@link.Channels</td>
-                                <td>@link.Direction</td>
-                                <td>@link.Type</td>
-                                <td>@link.CreatedOn</td>
-                                <td>@link.Remark</td>
+                                <td>Name</td>
+                                <td>Exchange</td>
+                                <td>Channels</td>
+                                <td>STM1/E1 equivalence</td>
+                                <td>Direction</td>
+                                <td>Type</td>
+                                <td>Created On</td>
+                                <td>Remark</td>
+                                <td>Actions</td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.Core))
+                            {
+                                <tr>
+                                    <td><a asp-route-district="@link.End2.Exchange.Area" asp-route-exchange="@link.End2.Exchange.Abb" asp-route-ne="@link.End2.Name" asp-action="specifications">@link.End2.Name</a></td>
+                                    <td>@link.End2.Exchange.Abb (@link.End2.Exchange.Name)</td>
+                                    <td>@link.Channels</td>
+                                    <td>@link.GetStm1E1()</td>
+                                    <td>@link.Direction</td>
+                                    <td>@link.Type</td>
+                                    <td>@link.CreatedOn</td>
+                                    <td>@link.Remark</td>
+                                    <td><button onclick="ShowEditLink(@link.Id)" class="btn btn-warning mr-3">Edit</button><button onclick="ShowDeleteLink(@link.Id)" class="btn btn-danger">Delete</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="tab-pane fade" id="pbx" role="tabpanel">
-                <table class="@Settings.TableClickableClass">
-                    <thead>
-                        <tr>
-                            <td>Name</td>
-                            <td>Channel No</td>
-                            <td>Direction</td>
-                            <td>Type</td>
-                            <td>Created On</td>
-                            <td>Remark</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.PBX))
-                        {
+                <div class="table-responsive">
+                    <table class="@Settings.TableClass">
+                        <thead>
                             <tr>
-                                <td>@link.End2.Name</td>
-                                <td>@link.Channels</td>
-                                <td>@link.Direction</td>
-                                <td>@link.Type</td>
-                                <td>@link.CreatedOn</td>
-                                <td>@link.Remark</td>
+                                <td>Name</td>
+                                <td>Channel No</td>
+                                <td>Direction</td>
+                                <td>Type</td>
+                                <td>Customer</td>
+                                <td>Created On</td>
+                                <td>Remark</td>
+                                <td>Actions</td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.PBX))
+                            {
+                                <tr>
+                                    <td>@link.End2.Name</td>
+                                    <td>@link.Channels</td>
+                                    <td>@link.Direction</td>
+                                    <td>@link.Type</td>
+                                    <td>@($"{link.End2.Customer.Abb} ({link.End2.Customer.Name})")</td>
+                                    <td>@link.CreatedOn</td>
+                                    <td>@link.Remark</td>
+                                    <td><button onclick="ShowEditLink(@link.Id)" class="btn btn-warning mr-3">Edit</button><button onclick="ShowDeleteLink(@link.Id)" class="btn btn-danger">Delete</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="tab-pane fade" id="ipPbx" role="tabpanel">
-                <table class="@Settings.TableClickableClass">
-                    <thead>
-                        <tr>
-                            <td>Name</td>
-                            <td>Channel No</td>
-                            <td>Direction</td>
-                            <td>Type</td>
-                            <td>Created On</td>
-                            <td>Remark</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.IP_PBX))
-                        {
+                <div class="table-responsive">
+                    <table class="@Settings.TableClass">
+                        <thead>
+                            <tr>
+                                <td>Name</td>
+                                <td>Channel No</td>
+                                <td>Direction</td>
+                                <td>Type</td>
+                                <td>Customer</td>
+                                <td>Created On</td>
+                                <td>Remark</td>
+                                <td>Actions</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.IP_PBX))
+                            {
                             <tr>
                                 <td>@link.End2.Name</td>
                                 <td>@link.Channels</td>
                                 <td>@link.Direction</td>
                                 <td>@link.Type</td>
+                                <td>@($"{link.End2.Customer.Abb} ({link.End2.Customer.Name})")</td>
                                 <td>@link.CreatedOn</td>
                                 <td>@link.Remark</td>
+                                <td><button onclick="ShowEditLink(@link.Id)" class="btn btn-warning mr-3">Edit</button><button onclick="ShowDeleteLink(@link.Id)" class="btn btn-danger">Delete</button></td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -161,10 +187,6 @@
                         </div>
                         <div class="col">
                             <div class="form-group">
-                                <label asp-for="NewLink.Channels"></label><div><span id="linkChannelValidation" class="text-danger"></span><span asp-validation-for="NewLink.Channels" class="text-danger"></span></div>
-                                <input asp-for="NewLink.Channels" class="form-control" onkeyup="LinkChannelValidation($('#NewLink_Channels').val(), $('#NewLink_Type').val(), 'linkChannelValidation');" />
-                            </div>
-                            <div class="form-group">
                                 <label asp-for="NewLink.Direction"></label><div><span asp-validation-for="NewLink.Direction" class="text-danger"></span></div>
                                 <select class="form-control" asp-for="NewLink.Direction">
                                     <option selected value="@LinkDirection.Bothway">@LinkDirection.Bothway</option>
@@ -179,6 +201,13 @@
                                     <option value="@LinkType.SIP">@LinkType.SIP</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label asp-for="NewLink.Channels"></label><div><span id="linkChannelValidation" class="text-danger"></span><span asp-validation-for="NewLink.Channels" class="text-danger"></span></div>
+                                <input asp-for="NewLink.Channels" class="form-control" onkeyup="LinkChannelValidation($('#NewLink_Channels').val(), $('#NewLink_Type').val(), 'linkChannelValidation');Stm1E1Representation($(this).val(),'stm1Equ')" />
+                            </div>
+                            <div class="form-group">
+                                <p id="stm1Equ"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -191,3 +220,116 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="deleteLink" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Link</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form asp-action="deleteLink" method="post">
+                <div class="modal-body">
+                    <p id="deleteMessage"></p>
+                    Are you sure to delete this link?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="hidden" name="id" id="deleteLinkId" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editLink" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Link</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditLink" method="post" onsubmit="return LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="EditLink_Type">Type</label>
+                        <select class="form-control" asp-for="EditLink.Type" onchange="LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');">
+                            <option value="@(LinkType.ISUP)">@LinkType.ISUP</option>
+                            <option value="@(LinkType.SIP)">@LinkType.SIP</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="EditLink_Channels">Channels</label><div><span id="editLinkChannelValidation"></span></div>
+                        <input asp-for="EditLink.Channels" class="form-control" onchange="LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');" onkeyup="LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');" />
+                    </div>
+                    <div class="form-group">
+                        <label for="EditLink_Direction">Direction</label>
+                        <select class="form-control" asp-for="EditLink.Direction">
+                            <option value="@(LinkDirection.Bothway)">@LinkDirection.Bothway</option>
+                            <option value="@(LinkDirection.Incoming)">@LinkDirection.Incoming</option>
+                            <option value="@(LinkDirection.Outgoing)">@LinkDirection.Outgoing</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" asp-for="EditLink.Id" value="" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        function ShowDeleteLink(id) {
+            $('#deleteLinkId').val(id);
+            $('#deleteLink').modal();
+        }
+
+
+        function ShowEditLink(id) {
+            $.ajax({
+                url: '/api/link/' + id,
+                success: function (result) {
+                    switch (result.type) {
+                        case @((int)LinkType.ISUP):
+                            $('#EditLink_Type').val('@LinkType.ISUP');
+                            break;
+                        case @((int)LinkType.SIP):
+                            $('#EditLink_Type').val('@LinkType.SIP');
+                        case @((int)LinkType.PRA):
+                            $('#EditLink_Type').val('@LinkType.SIP');
+                    }
+                    switch (result.direction) {
+                        case @((int)LinkDirection.Bothway):
+                            $('#EditLink_Direction').val('@LinkDirection.Bothway');
+                            break;
+                        case @((int)LinkDirection.Incoming):
+                            $('#EditLink_Direction').val('@LinkDirection.Incoming');
+                            break;
+                        case @((int)LinkDirection.Outgoing):
+                            $('#EditLink_Direction').val('@LinkDirection.Outgoing');
+                            break;
+                        default:
+                    }
+                    $('#EditLink_Channels').val(result.channels);
+                    $('#EditLink_Id').val(result.id);
+                    $('#editLink').modal();
+                },
+                error: function () {
+                    alert("Cannot get link information.");
+                },
+
+                method: 'GET'
+            });
+
+        }
+    </script>
+}

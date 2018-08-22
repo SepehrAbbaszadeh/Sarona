@@ -32,7 +32,7 @@ function PopulateExchange(area, selectId) {
 function PopulateNE(exchangeAbb, type, selectId) {
     $("#" + selectId).text('');
     $("#" + selectId).append("<option disable selected value=''>Please select an NE.");
-    $.getJSON("/api/ne/" + exchangeAbb + "/" + type, function (result) {
+    $.getJSON("/api/ne/abb/" + exchangeAbb + "/" + type, function (result) {
         $.each(result, function () {
             $("#" + selectId).append($("<option />").val(this.id).text(this.name + " (" + this.model + ")"));
         });
@@ -96,7 +96,6 @@ function NeNameValidation(neName, oldName, validationId) {
 }
 
 function LinkChannelValidation(channels, linkType, validationId) {
-    var res;
     $("#" + validationId).text("");
     if (linkType === "ISUP" && channels % 31 > 0) {
         $("#" + validationId).text("Number of channels for ISUP links must be N*31");
@@ -104,4 +103,13 @@ function LinkChannelValidation(channels, linkType, validationId) {
     }
     else
         return true;
+}
+
+function Stm1E1Representation(channels, id) {
+    var p = $("#" + id);
+    p.text("");
+    var stm1 = Math.floor(channels / 1953);
+    var e1 = Math.floor((channels - stm1 * 1953) / 31);
+    var ch = channels - stm1 * 1953 - e1 * 31;
+    p.text("STM1=" + stm1 + " E1=" + e1 + " Channels=" + ch);
 }

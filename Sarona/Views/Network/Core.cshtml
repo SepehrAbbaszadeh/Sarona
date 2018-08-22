@@ -1,56 +1,99 @@
 ﻿@model CoreViewModel
 @{
-    var deleteTarget = "";
-    var error = "";
-    ViewData["Title"] = Model.NE.Name;
-    if (Model.NE.LinksOnEnd1.Count() > 0)
-    {
-        error = $"There are {Model.NE.LinksOnEnd1.Count()} links.\n" + error;
-    }
-    if (Model.Numberings.Count() > 0)
-    {
-        error = $"There are {Model.Numberings.Count()} numbering ranges.\n" + error;
-    }
-    if (Model.NE.NetworkElements.Count() > 0)
-    {
-        error = $"There are {Model.NE.NetworkElements.Count()} children.\n" + error;
-    }
-    if (string.IsNullOrEmpty(error))
+    string error = "First delete these items:";
+    var deleteTarget = "#deleteCore";
+    ViewData["Title"] = Model.NE.Name + " (" + ViewContext.RouteData.Values["action"].ToString() + ")";
+    if (Model.Remotes != null)
     {
         deleteTarget = "#deleteCore";
+        error = error + $"/n{Model.Remotes.Count} remotes.";
     }
-    else
+    else if(Model.Accesses != null)
     {
-        deleteTarget = "#deleteError";
+        deleteTarget = "#deleteCore";
+        error = error + $"/n{Model.Accesses.Count} accesses.";
+    }
+    else if(Model.IsupLinks != null)
+    {
+        deleteTarget = "#deleteCore";
+        error = error + $"/n{Model.IsupLinks.Count} ISUP links.";
+    }
+    else if(Model.SipLinks != null)
+    {
+        deleteTarget = "#deleteCore";
+        error = error + $"/n{Model.SipLinks.Count} SIP links.";
     }
 }
 <div class="row">
-    <div class="col-md-3">
-        <div class="list-group" id="v-pills-tab">
-            <a class="list-group-item list-group-item-action list-group-item-warning" asp-action="Exchange">Back to "@Model.NE.Exchange.Name"</a>
-            <a class="list-group-item list-group-item-action active" id="v-pills-links-tab" data-toggle="pill" href="#v-pills-links">Links</a>
-            <a class="list-group-item list-group-item-action" id="v-pills-numbering-tab" data-toggle="pill" href="#v-pills-numbering">Numbering</a>
-            <a class="list-group-item list-group-item-action" id="v-pills-remotes-tab" data-toggle="pill" href="#v-pills-remotes">Remotes</a>
-            <a class="list-group-item list-group-item-action" id="v-pills-accesses-tab" data-toggle="pill" href="#v-pills-accesses">Accesses</a>
-        </div>
+    <div class="@Settings.Col3">
+        <partial name="_NeMenu" model="new Tuple<string, NeType>(Model.NE.Exchange.Name, Model.NE.NetworkType)" />
     </div>
-    <div class="col-md-9">
+    <div class="@Settings.Col9">
         <h3>@Model.NE.Name</h3>
-        <button type="button" class="btn btn-warning my-3" data-toggle="modal" data-target="#editCore">Edit "@Model.NE.Name"</button>
-        <button type="button" class="btn btn-danger my-3" data-toggle="modal" data-target="@deleteTarget">Delete "@Model.NE.Name"</button>
-        <div class="tab-content" id="v-pills-tabContent">
-            <div class="tab-pane fade show active" id="v-pills-links">
-                <partial name="_Links" model="Model.Links" />
+        <button class="btn btn-warning my-3" onclick="$('#editCore').modal()">Edit "@Model.NE.Name"</button>
+        <button class="btn btn-danger my-3" onclick="$('@deleteTarget').modal()">Delete "@Model.NE.Name"</button>
+
+        <div class="card-deck my-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-center"><b>Network Element</b></h5>
+                    <div class="row">
+                        <div class="col">
+                            <p class="card-text"><b>Network Type: </b>@Model.NE.NetworkType</p>
+                            <p class="card-text"><b>Type: </b>@Model.NE.Type</p>
+                            <p class="card-text"><b>Owner: </b>@Model.NE.Owner</p>
+                            <p class="card-text"><b>Model: </b>@Model.NE.Model</p>
+                        </div>
+                        <div class="col">
+                            <p class="card-text"><b>Manufacturer: </b>@Model.NE.Manufacturer</p>
+                            <p class="card-text"><b>Installed Capacity: </b>@Model.NE.InstalledCapacity</p>
+                            <p class="card-text"><b>Used Capacity: </b>@Model.NE.UsedCapacity</p>
+                            <p class="card-text"><b>Remark: </b><br /><textarea dir="rtl" class="w-100" readonly disabled>@Model.NE.Remark</textarea></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="tab-pane fade" id="v-pills-numbering">
-                @*<partial name="_Numbering" model="Model.NumberingPoolNetworkElements" />*@
+        </div>
+        <div class="card-deck my-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Remotes</h5>
+                    <p class="card-text"><b>Number of remotes: </b>@(Model.Remotes == null ? 0 : Model.Remotes.Count)</p>
+                    <p class="card-text"><b>Sum of Installed Capacity: </b>@(Model.Remotes == null ? 0 : Model.Remotes.SumInstalled)</p>
+                    <p class="card-text"><b>Sum of Used Capacity: </b>@(Model.Remotes == null ? 0 : Model.Remotes.SumUsed)</p>
+                </div>
             </div>
-            <div class="tab-pane fade" id="v-pills-remotes">
-                @*<partial name="_Numbering" model="Model" />*@
+            <div class="card">
+                <div class="card-body bg-light">
+                    <h5 class="card-title text-center">Accesses</h5>
+                    <p class="card-text"><b>Number of accesses: </b>@(Model.Accesses == null ? 0 : Model.Accesses.Count)</p>
+                    <p class="card-text"><b>Sum of Installed Capacity: </b>@(Model.Accesses == null ? 0 : Model.Accesses.SumInstalled)</p>
+                    <p class="card-text"><b>Sum of Used Capacity: </b>@(Model.Accesses == null ? 0 : Model.Accesses.SumUsed)</p>
+                </div>
             </div>
-            <div class="tab-pane fade" id="v-pills-accesses">
-                @*<partial name="_Numbering" model="Model" />*@
+        </div>
+        <div class="card-deck my-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Links by Link Type</h5>
+                    <p class="card-text"><b>Number of ISUP Links: </b>@(Model.IsupLinks == null ? 0 : Model.IsupLinks.Count)</p>
+                    <p class="card-text"><b>Sum of ISUP Channels: </b>@(Model.IsupLinks == null ? 0 : Model.IsupLinks.SumChannels)</p>
+                    <p class="card-text"><b>Number of SIP Links: </b>@(Model.SipLinks == null ? 0 : Model.SipLinks.Count)</p>
+                    <p class="card-text"><b>Sum of SIP Channels: </b>@(Model.SipLinks == null ? 0 : Model.SipLinks.SumChannels)</p>
+                </div>
             </div>
+            <div class="card">
+                <div class="card-body bg-light">
+                    <h5 class="card-title text-center">Links by End2 Type</h5>
+                    <p class="card-text"><b>Number of Core links: </b>@(Model.CoreLinks == null ? 0 : Model.CoreLinks.Count)</p>
+                    <p class="card-text"><b>Sum of Core Channels: </b>@(Model.CoreLinks == null ? 0 : Model.CoreLinks.SumChannels)</p>
+                    <p class="card-text"><b>Number of PBX links: </b>@(Model.PbxLinks == null ? 0 : Model.PbxLinks.Count)</p>
+                    <p class="card-text"><b>Sum of PBX Channels: </b>@(Model.PbxLinks == null ? 0 : Model.PbxLinks.SumChannels)</p>
+                    <p class="card-text"><b>Number of IP-PBX links: </b>@(Model.IpPbxLinks == null ? 0 : Model.IpPbxLinks.Count)</p>
+                    <p class="card-text"><b>Sum of IP-PBX Channels: </b>@(Model.IpPbxLinks == null ? 0 : Model.IpPbxLinks.SumChannels)</p>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -64,18 +107,27 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="EditNe" method="post" onsubmit="NeNameValidation($('#NE_Name').val(),'@Model.NE.Name','neNameValidation')">
+            <form asp-action="EditNe" method="post" onsubmit="NeNameValidation($('#Name').val(),'','neNameValidation')">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
                                 <label asp-for="NE.Name"></label><div><span id="neNameValidation" class="text-danger"></span><span asp-validation-for="NE.Name" class="text-danger"></span></div>
-                                <input asp-for="NE.Name" class="form-control" onkeyup="NeNameValidation($('#NE_Name').val(),'@Model.NE.Name','neNameValidation')" />
+                                <input asp-for="NE.Name" class="form-control" onkeyup="NeNameValidation($('#NewNE_Name').val(),'','neNameValidation')" />
                             </div>
                             <div class="form-group">
                                 <label asp-for="NE.Type"></label>
                                 <select asp-for="NE.Type" class="form-control">
                                     @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreType))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NE.Owner"></label>
+                                <select asp-for="NE.Owner" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreOwner))
                                     {
                                         <option value="@item.Name">@item.Name</option>
                                     }
@@ -121,9 +173,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" asp-for="NE.NetworkType" />
-                    <input type="hidden" asp-for="NE.ExchangeId" />
-                    <input type="hidden" asp-for="NE.Id" />
+                    <input type="hidden" asp-for="NE.NetworkType" value="@NeType.Core" />
+                    <input type="hidden" asp-for="NE.Id" value="@Model.NE.Id" />
+                    <input type="hidden" asp-for="NE.ExchangeId" value="@Model.NE.ExchangeId" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-warning">Edit</button>
                 </div>
@@ -132,30 +184,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="editCore" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit "@Model.NE.Name"</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form asp-action="EditCore" method="post" onsubmit="NeNameValidation($('#NE_Name').val(),'@Model.NE.Name','neNameValidation')">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label asp-for="NE.Name"></label><div><span class="text-danger" id="neNameValidation"></span><span asp-validation-for="NE.Name" class="text-danger"></span></div>
-                        <input asp-for="NE.Name" class="form-control" onkeyup="NeNameValidation($('#NE_Name').val(),'@Model.NE.Name','neNameValidation')" />
-                    </div>                    
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-warning">Edit</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 @if (deleteTarget == "#deleteError")
 {
@@ -163,7 +191,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fa-crosshairs">Error</h5>
+                    <h5 class="modal-title">Error</h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                     </button>

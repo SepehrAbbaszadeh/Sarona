@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,12 +18,29 @@ namespace Sarona
             string conString = Configuration["ConnectionStrings:DefaultConnection"];
             services.AddDbContext<SaronaContext>(options => options.UseSqlServer(conString));
             services.AddTransient<SaronaRepository>();
+
+            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(conString));
+
+            services.AddIdentity<AppUser, IdentityRole>(opts =>
+            {
+                opts.Password.RequiredLength = 5;
+                opts.Password.RequireNonAlphanumeric = false;
+                opts.Password.RequireLowercase = false;
+                opts.Password.RequireUppercase = false;
+                opts.Password.RequireDigit = false;
+            }).AddEntityFrameworkStores<AppIdentityDbContext>()
+            .AddDefaultTokenProviders();
+
+
+
+
             services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+
 
             if (env.IsDevelopment())
             {
@@ -36,6 +54,7 @@ namespace Sarona
             }
 
             app.UseStaticFiles();
+            app.UseAuthentication();
             app.UseMvc(rt =>
             {
 
@@ -43,7 +62,7 @@ namespace Sarona
                 rt.MapRoute(
                     name: "Element",
                     template: "Network/{district:length(2)}/{exchange}/{ne}/{action}",
-                    defaults: new { controller = "Network", action = "Links" });
+                    defaults: new { controller = "Network", action = "Specifications" });
                 rt.MapRoute(
                     name: "Exchange",
                     template: "Network/{district:length(2)}/{exchange}",

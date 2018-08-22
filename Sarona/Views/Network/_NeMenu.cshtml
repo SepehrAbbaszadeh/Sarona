@@ -2,16 +2,11 @@
 @{ 
 
     var selectedAction = ViewContext.RouteData.Values["action"].ToString().ToLower();
-    switch (selectedAction)
-    {
-        case "links":
-            break;
-        default:
-            break;
-    }
+    
 }
 <div class="list-group">
     <a class="list-group-item list-group-item-action list-group-item-warning" asp-route="Exchange">Back to "@Model.Item1"</a>
+    <a class="list-group-item list-group-item-action @(selectedAction == "specifications" ? "active":"")" asp-action="Specifications">Specifications</a>
     @switch (Model.Item2)
     {
         case NeType.Core:

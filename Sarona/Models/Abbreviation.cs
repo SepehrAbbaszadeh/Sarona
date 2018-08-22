@@ -15,8 +15,8 @@ namespace Sarona.Models
         [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Use letters only!")]
         public string Abb { get; set; }
         public DateTime CreatedOn { get; set; }
-        //public DateTime ModifiedOn { get; set; }
-        //public string User { get; set; }
+        public DateTime ModifiedOn { get; set; }
+        public string Username { get; set; }
     }
 
     public class Exchange : Abbreviation

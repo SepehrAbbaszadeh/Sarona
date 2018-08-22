@@ -36,8 +36,12 @@ namespace Sarona.Migrations
                     b.Property<string>("Discriminator")
                         .IsRequired();
 
+                    b.Property<DateTime>("ModifiedOn");
+
                     b.Property<string>("Name")
                         .IsRequired();
+
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 
@@ -65,11 +69,15 @@ namespace Sarona.Migrations
 
                     b.Property<long>("End2Id");
 
+                    b.Property<DateTime>("ModifiedOn");
+
                     b.Property<long?>("OtherLinkId");
 
                     b.Property<string>("Remark");
 
                     b.Property<int>("Type");
+
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 
@@ -103,6 +111,8 @@ namespace Sarona.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime>("CreatedOn");
+
                     b.Property<long?>("CustomerId");
 
                     b.Property<long>("ExchangeId");
@@ -115,9 +125,14 @@ namespace Sarona.Migrations
                     b.Property<string>("Model")
                         .IsRequired();
 
+                    b.Property<DateTime>("ModifiedOn");
+
                     b.Property<string>("Name");
 
                     b.Property<int>("NetworkType");
+
+                    b.Property<string>("Owner")
+                        .IsRequired();
 
                     b.Property<long?>("ParentId");
 
@@ -127,6 +142,8 @@ namespace Sarona.Migrations
                         .IsRequired();
 
                     b.Property<int>("UsedCapacity");
+
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
 

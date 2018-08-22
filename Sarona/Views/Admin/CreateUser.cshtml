@@ -1,0 +1,22 @@
+﻿@model CreateUser
+
+<div class="row">
+    <div class="@Settings.Col3">
+
+    </div>
+    <div class="@Settings.Col9">
+        <h4>Create User</h4>
+        <div asp-validation-summary=" All" class="text-danger"></div>
+        <form asp-action="CreateUser" method="post">
+            <div class="form-group">
+                <label asp-for="Username"></label><div><span asp-validation-for="Username" class="text-danger"></span></div>
+                <input asp-for="Username" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label><div><span asp-validation-for="Password" class="text-danger"></span></div>
+                <input asp-for="Password" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>

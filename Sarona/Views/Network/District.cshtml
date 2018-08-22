@@ -1,45 +1,18 @@
 ﻿@model DistrictViewModel
 @{
-    string[] active = new string[7];
     ViewData["Title"] = "Area " + (int)Model.SelectedDistrict;
-    switch (Model.SelectedDistrict)
-    {
-        case Area.A2:
-            active[0] = "active";
-            break;
-        case Area.A3:
-            active[1] = "active";
-            break;
-        case Area.A4:
-            active[2] = "active";
-            break;
-        case Area.A5:
-            active[3] = "active";
-            break;
-        case Area.A6:
-            active[4] = "active";
-            break;
-        case Area.A7:
-            active[5] = "active";
-            break;
-        case Area.A8:
-            active[6] = "active";
-            break;
-        default:
-            break;
-    }
 }
 
 <div class="row">
     <div class="@Settings.Col3">
         <div class="list-group">
-            <a asp-action="District" asp-route-district="A2" class="list-group-item list-group-item-action @active[0]">Area 2</a>
-            <a asp-action="District" asp-route-district="A3" class="list-group-item list-group-item-action @active[1]">Area 3</a>
-            <a asp-action="District" asp-route-district="A4" class="list-group-item list-group-item-action @active[2]">Area 4</a>
-            <a asp-action="District" asp-route-district="A5" class="list-group-item list-group-item-action @active[3]">Area 5</a>
-            <a asp-action="District" asp-route-district="A6" class="list-group-item list-group-item-action @active[4]">Area 6</a>
-            <a asp-action="District" asp-route-district="A7" class="list-group-item list-group-item-action @active[5]">Area 7</a>
-            <a asp-action="District" asp-route-district="A8" class="list-group-item list-group-item-action @active[6]">Area 8</a>
+            <a asp-action="District" asp-route-district="A2" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A2 ? "active":"")">Area 2</a>
+            <a asp-action="District" asp-route-district="A3" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A3 ? "active":"")">Area 3</a>
+            <a asp-action="District" asp-route-district="A4" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A4 ? "active":"")">Area 4</a>
+            <a asp-action="District" asp-route-district="A5" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A5 ? "active":"")">Area 5</a>
+            <a asp-action="District" asp-route-district="A6" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A6 ? "active":"")">Area 6</a>
+            <a asp-action="District" asp-route-district="A7" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A7 ? "active":"")">Area 7</a>
+            <a asp-action="District" asp-route-district="A8" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A8 ? "active":"")">Area 8</a>
         </div>
     </div>
     <div class="@Settings.Col9">
@@ -59,7 +32,9 @@
                 <tr>
                     <th>Abbreviation</th>
                     <th>Name</th>
-                    <th>Created On</th>
+                    <th>Created at</th>
+                    <th>Modified at</th>
+                    <th>User</th>
                 </tr>
             </thead>
             <tbody>
@@ -69,6 +44,8 @@
                         <td><a asp-action="Exchange" asp-route-exchange="@exch.Abb" asp-route-district="@Model.SelectedDistrict">@exch.Abb</a></td>
                         <td>@exch.Name</td>
                         <td>@exch.CreatedOn</td>
+                        <td>@exch.ModifiedOn</td>
+                        <td>@exch.Username</td>
                     </tr>
                 }
             </tbody>

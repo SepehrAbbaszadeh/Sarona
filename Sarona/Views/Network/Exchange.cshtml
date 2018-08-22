@@ -72,64 +72,70 @@
 
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-core">
-                <table class="@Settings.TableClickableClass">
-                    <thead>
-                        <tr>
-                            <td>Name</td>
-                            <td>Type</td>
-                            <td>Model</td>
-                            <td>Manufacturer</td>
-                            <td>Installed Capacity</td>
-                            <td>Used Capacity</td>
-                            <td>Remark</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var core in Model.CoreElements)
-                        {
+                <div class="table-responsive">
+                    <table class="@Settings.TableClickableClass">
+                        <thead>
                             <tr>
-                                <td><a asp-action="Links" asp-route-ne="@core.Name">@core.Name</a></td>
-                                <td>@core.Type</td>
-                                <td>@core.Model</td>
-                                <td>@core.Manufacturer</td>
-                                <td>@core.InstalledCapacity</td>
-                                <td>@core.UsedCapacity</td>
-                                <td>@core.Remark</td>
+                                <td>Name</td>
+                                <td>Type</td>
+                                <td>Model</td>
+                                <td>Manufacturer</td>
+                                <td>Owner</td>
+                                <td>Installed Capacity</td>
+                                <td>Used Capacity</td>
+                                <td>Remark</td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var core in Model.CoreElements)
+                            {
+                                <tr>
+                                    <td><a asp-action="Specifications" asp-route-ne="@core.Name">@core.Name</a></td>
+                                    <td>@core.Type</td>
+                                    <td>@core.Model</td>
+                                    <td>@core.Manufacturer</td>
+                                    <td>@core.Owner</td>
+                                    <td>@core.InstalledCapacity</td>
+                                    <td>@core.UsedCapacity</td>
+                                    <td>@core.Remark</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="tab-pane fade" id="nav-remotes">
-                <table class="@Settings.TableClickableClass">
-                    <thead>
-                        <tr>
-                            <td>Name</td>
-                            <td>Type</td>
-                            <td>Model</td>
-                            <td>Manufacturer</td>
-                            <td>Installed Capacity</td>
-                            <td>Used Capacity</td>
-                            <td>Parent</td>
-                            <td>Remark</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var remote in Model.Remotes)
-                        {
+                <div class="table-responsive">
+                    <table class="@Settings.TableClickableClass">
+                        <thead>
                             <tr>
-                                <td>@remote.Name</td>
-                                <td>@remote.Type</td>
-                                <td>@remote.Model</td>
-                                <td>@remote.Manufacturer</td>
-                                <td>@remote.InstalledCapacity</td>
-                                <td>@remote.UsedCapacity</td>
-                                <td>@remote.Parent.Name</td>
-                                <td>@remote.Remark</td>
+                                <td>Name</td>
+                                <td>Type</td>
+                                <td>Model</td>
+                                <td>Manufacturer</td>
+                                <td>Installed Capacity</td>
+                                <td>Used Capacity</td>
+                                <td>Parent</td>
+                                <td>Remark</td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var remote in Model.Remotes)
+                            {
+                                <tr>
+                                    <td>@remote.Name</td>
+                                    <td>@remote.Type</td>
+                                    <td>@remote.Model</td>
+                                    <td>@remote.Manufacturer</td>
+                                    <td>@remote.InstalledCapacity</td>
+                                    <td>@remote.UsedCapacity</td>
+                                    <td>@remote.Parent.Name</td>
+                                    <td>@remote.Remark</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="tab-pane fade" id="nav-accesses">
                 <table class="@Settings.TableClickableClass">
@@ -230,7 +236,7 @@
                         <div class="col">
                             <div class="form-group">
                                 <label asp-for="NewNE.Name"></label><div><span id="neNameValidation" class="text-danger"></span><span asp-validation-for="NewNE.Name" class="text-danger"></span></div>
-                                <input asp-for="NewNE.Name" class="form-control" onkeyup="NeNameValidation($('#NewNE_Name').val(),'','neNameValidation')"/>
+                                <input asp-for="NewNE.Name" class="form-control" onkeyup="NeNameValidation($('#NewNE_Name').val(),'','neNameValidation')" />
                             </div>
                             <div class="form-group">
                                 <label asp-for="NewNE.Type"></label>
@@ -242,15 +248,24 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label asp-for="NewNE.Model"></label>
-                                <select asp-for="NewNE.Model" class="form-control">
-                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreModel))
+                                <label asp-for="NewNE.Owner"></label>
+                                <select asp-for="NewNE.Owner" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreOwner))
                                     {
                                         <option value="@item.Name">@item.Name</option>
                                     }
                                 </select>
                             </div>
+                        <div class="form-group">
+                            <label asp-for="NewNE.Model"></label>
+                            <select asp-for="NewNE.Model" class="form-control">
+                                @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreModel))
+                                {
+                                    <option value="@item.Name">@item.Name</option>
+                                }
+                            </select>
                         </div>
+                    </div>
                         <div class="col">
                             <div class="form-group">
                                 <label asp-for="NewNE.Manufacturer"></label>
@@ -299,7 +314,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="AddNE" method="post">
+            <form asp-action="Exchange" method="post">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
@@ -378,6 +393,7 @@
                     <input type="hidden" asp-for="NewNE.NetworkType" value="@NeType.Remote" />
                     <input type="hidden" asp-for="NewNE.Name" value="Remote" />
                     <input type="hidden" asp-for="NewNE.ExchangeId" value="@Model.SelectedExchange.Id" />
+                    <input type="hidden" asp-for="NewNE.Owner" value="TCT" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
@@ -394,7 +410,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="AddNE" method="post">
+            <form asp-action="Exchange" method="post">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
@@ -472,6 +488,7 @@
                 <div class="modal-footer">
                     <input type="hidden" asp-for="NewNE.NetworkType" value="@NeType.Access" />
                     <input type="hidden" asp-for="NewNE.ExchangeId" value="@Model.SelectedExchange.Id" />
+                    <input type="hidden" asp-for="NewNE.Owner" value="TCT" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
@@ -488,7 +505,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="AddNE" method="post">
+            <form asp-action="Exchange" method="post">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
@@ -516,6 +533,7 @@
                 <div class="modal-footer">
                     <input id="newPbxType" type="hidden" asp-for="NewNE.Type" value="PBX" />
                     <input type="hidden" asp-for="NewNE.ExchangeId" value="@Model.SelectedExchange.Id" />
+                    <input type="hidden" asp-for="NewNE.Owner" value="Customer" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
@@ -559,6 +577,7 @@
                         </select>
                     </div>
                     <input type="hidden" asp-for="SelectedExchange.Id" />
+                    <input type="hidden" asp-for="SelectedExchange.CreatedOn" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

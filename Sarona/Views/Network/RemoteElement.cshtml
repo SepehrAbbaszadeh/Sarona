@@ -1,0 +1,188 @@
+﻿@model RemoteElementViewModel
+@{
+    string error = "First delete these items:";
+    var deleteTarget = "#deleteCore";
+    ViewData["Title"] = Model.NE.Name + " (" + ViewContext.RouteData.Values["action"].ToString() + ")";
+
+}
+<div class="row">
+    <div class="@Settings.Col3">
+        <partial name="_NeMenu" model="new Tuple<string, NeType>(Model.NE.Exchange.Name, Model.NE.NetworkType)" />
+    </div>
+    <div class="@Settings.Col9">
+        <h3>@Model.NE.Name</h3>
+        <button class="btn btn-warning my-3" onclick="$('#editCore').modal()">Edit "@Model.NE.Name"</button>
+        <button class="btn btn-danger my-3" onclick="$('@deleteTarget').modal()">Delete "@Model.NE.Name"</button>
+
+        <div class="card-deck my-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-center"><b>Network Element</b></h5>
+                    <div class="row">
+                        <div class="col">
+                            <p class="card-text"><b>Network Type: </b>@Model.NE.NetworkType</p>
+                            <p class="card-text"><b>Type: </b>@Model.NE.Type</p>
+                            <p class="card-text"><b>Owner: </b>@Model.NE.Owner</p>
+                            <p class="card-text"><b>Model: </b>@Model.NE.Model</p>
+                        </div>
+                        <div class="col">
+                            <p class="card-text"><b>Manufacturer: </b>@Model.NE.Manufacturer</p>
+                            <p class="card-text"><b>Installed Capacity: </b>@Model.NE.InstalledCapacity</p>
+                            <p class="card-text"><b>Used Capacity: </b>@Model.NE.UsedCapacity</p>
+                            <p class="card-text"><b>Remark: </b><br /><textarea dir="rtl" class="w-100" readonly disabled>@Model.NE.Remark</textarea></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-deck my-3">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-center"><b>Parent</b></h5>
+                    <div class="row">
+                        <div class="col">
+                            <p class="card-text"><b>Name: </b><a asp-route-district="@Model.NE.Parent.Exchange.Area" asp-route-exchange="@Model.NE.Parent.Exchange.Abb" asp-route-ne="@Model.NE.Parent.Name" asp-action="Specifications">@Model.NE.Parent.Name</a></p>
+                            <p class="card-text"><b>Exchange: </b><a asp-route-district="@Model.NE.Parent.Exchange.Area" asp-route-exchange="@Model.NE.Parent.Exchange.Abb" asp-action="Exchange">@Model.NE.Parent.Exchange.Abb (@Model.NE.Parent.Exchange.Name)</a></p>
+                            <p class="card-text"><b>Network Type: </b>@Model.NE.Parent.NetworkType</p>
+                            <p class="card-text"><b>Type: </b>@Model.NE.Parent.Type</p>
+                            <p class="card-text"><b>Owner: </b>@Model.NE.Parent.Owner</p>
+                        </div>
+                        <div class="col">
+                            <p class="card-text"><b>Model: </b>@Model.NE.Parent.Model</p>
+                            <p class="card-text"><b>Manufacturer: </b>@Model.NE.Parent.Manufacturer</p>
+                            <p class="card-text"><b>Installed Capacity: </b>@Model.NE.Parent.InstalledCapacity</p>
+                            <p class="card-text"><b>Used Capacity: </b>@Model.NE.Parent.UsedCapacity</p>
+                            <p class="card-text"><b>Remark: </b><br /><textarea dir="rtl" class="w-100" readonly disabled>@Model.NE.Parent.Remark</textarea></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>
+
+<div class="modal fade" id="editCore" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit "@Model.NE.Name"</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditNe" method="post" onsubmit="NeNameValidation($('#Name').val(),'','neNameValidation')">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NE.Type"></label>
+                                <select asp-for="NE.Type" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.RemoteType))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NE.Model"></label>
+                                <select asp-for="NE.Model" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.RemoteType))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NE.Manufacturer"></label>
+                                <select asp-for="NE.Manufacturer" class="form-control">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Manufacturer))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NE.InstalledCapacity"></label><div><span asp-validation-for="NE.InstalledCapacity" class="text-danger"></span></div>
+                                <input asp-for="NE.InstalledCapacity" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NE.UsedCapacity"></label><div><span asp-validation-for="NE.UsedCapacity" class="text-danger"></span></div>
+                                <input asp-for="NE.UsedCapacity" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NE.Remark"></label>
+                                <textarea asp-for="NE.Remark" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" asp-for="NE.Name" value="@Model.NE.Name" />
+                    <input type="hidden" asp-for="NE.NetworkType" value="@Model.NE.NetworkType" />
+                    <input type="hidden" asp-for="NE.Owner" value="@Model.NE.Owner" />
+                    <input type="hidden" asp-for="NE.Id" value="@Model.NE.Id" />
+                    <input type="hidden" asp-for="NE.ParentId" value="@Model.NE.ParentId" />
+                    <input type="hidden" asp-for="NE.ExchangeId" value="@Model.NE.ExchangeId" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@if (deleteTarget == "#deleteError")
+{
+    <div class="modal fade" id="deleteError" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Error</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @error
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="modal fade" id="deleteCore" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Exchange</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure to delete "@Model.NE.Name"?
+                </div>
+                <div class="modal-footer">
+                    <form method="post" asp-action="DeleteNe">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input type="hidden" name="id" value="@Model.NE.Id" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

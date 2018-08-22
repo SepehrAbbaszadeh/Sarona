@@ -16,11 +16,12 @@ namespace Sarona.Models
         public IQueryable<Customer> Customers => context.Customers;
         public IQueryable<Misc> Miscs => context.Miscs;
         public IQueryable<NetworkElement> NetworkElements => context.NetworkElements;
-
+        public IQueryable<Link> Links => context.Links;
         public void AddExchange(Exchange exch)
         {
             exch.Abb = exch.Abb.ToUpper();
             exch.CreatedOn = DateTime.Now;
+            exch.ModifiedOn = exch.CreatedOn;
             context.Exchanges.Add(exch);
             context.SaveChanges();
         }
@@ -41,9 +42,38 @@ namespace Sarona.Models
             return exch;
         }
 
+        internal NetworkElement GetLinks(string name)
+        {
+            return context.NetworkElements.Where(x => x.Name == name)
+                .Select(x => new NetworkElement()
+                {
+                    Id = x.Id,
+                    CustomerId = x.CustomerId,
+                    ExchangeId = x.ExchangeId,
+                    Exchange = new Exchange() { Name = x.Exchange.Name, Abb = x.Exchange.Abb },
+                    Customer = new Customer() { Name = x.Customer.Name, Abb = x.Customer.Name },
+                    Manufacturer = x.Manufacturer,
+                    Model = x.Model,
+                    Name = x.Name,
+                    Type = x.Type,
+                    ParentId = x.ParentId,
+                    LinksOnEnd1 = x.LinksOnEnd1.OrderBy(z => z.End2.Name).Select(y => new Link()
+                    {
+                        Channels = y.Channels,
+                        Type = y.Type,
+                        CreatedOn = y.CreatedOn,
+                        Direction = y.Direction,
+                        Remark = y.Remark,
+                        End2Id = y.End2Id,
+                        End2 = new NetworkElement() { Customer = y.End2.Customer, Name = y.End2.Name, NetworkType = y.End2.NetworkType, Exchange = new Exchange() { Area = y.End2.Exchange.Area, Abb = y.End2.Exchange.Abb, Name = y.End2.Exchange.Name } },
+                        Id = y.Id
+                    }),
+                }).FirstOrDefault();
+        }
         internal void AddCustomer(Customer newCustomer)
         {
             newCustomer.CreatedOn = DateTime.Now;
+            newCustomer.ModifiedOn = newCustomer.CreatedOn;
             newCustomer.Abb = newCustomer.Abb.ToUpperInvariant();
             context.Customers.Add(newCustomer);
             context.SaveChanges();
@@ -51,6 +81,7 @@ namespace Sarona.Models
 
         internal void EditExchange(Exchange exch)
         {
+            exch.ModifiedOn = DateTime.Now;
             context.Abbreviations.Update(exch);
             context.SaveChanges();
         }
@@ -83,6 +114,8 @@ namespace Sarona.Models
                 default:
                     break;
             }
+            newNe.CreatedOn = DateTime.Now;
+            newNe.ModifiedOn = newNe.CreatedOn;
             context.NetworkElements.Add(newNe);
             context.SaveChanges();
         }
@@ -95,13 +128,25 @@ namespace Sarona.Models
 
         internal void EditNetworkElement(NetworkElement ne)
         {
+            ne.ModifiedOn = DateTime.Now;
             context.NetworkElements.Update(ne);
             context.SaveChanges();
         }
 
+        internal void EditLink(Link link)
+        {
+            var originalLink = context.Links.Find(link.Id);
+            originalLink.Remark = link.Remark;
+            originalLink.Type = link.Type;
+            originalLink.Channels = link.Channels;
+            originalLink.ModifiedOn = DateTime.Now;
+            context.SaveChanges();
+
+        }
         internal void AddLink(Link newLink)
         {
             newLink.CreatedOn = DateTime.Now;
+            newLink.ModifiedOn = newLink.ModifiedOn;
             LinkDirection direction = LinkDirection.Bothway;
             switch (newLink.Direction)
             {
@@ -115,10 +160,9 @@ namespace Sarona.Models
                     direction = LinkDirection.Bothway;
                     break;
             }
+
             context.Database.BeginTransaction();
             context.Links.Add(newLink);
-            context.SaveChanges();
-
             var otherLink = new Link()
             {
                 Channels = newLink.Channels,
@@ -130,10 +174,25 @@ namespace Sarona.Models
                 Remark = newLink.Remark,
                 Type = newLink.Type
             };
-
-            newLink.OtherLinkId = otherLink.Id;
             context.Links.Add(otherLink);
+            context.SaveChanges();
+            newLink.OtherLinkId = otherLink.Id;
             context.Links.Update(newLink);
+            context.SaveChanges();
+            context.Database.CommitTransaction();
+        }
+
+        internal void DeleteLink(long id)
+        {
+            var link = context.Links.Find(id);
+            var otherLink = context.Links.Find(link.OtherLinkId);
+            context.Database.BeginTransaction();
+            link.OtherLinkId = null;
+            context.Links.Update(link);
+            context.SaveChanges();
+            context.Links.Remove(otherLink);
+            context.SaveChanges();
+            context.Links.Remove(link);
             context.SaveChanges();
             context.Database.CommitTransaction();
         }

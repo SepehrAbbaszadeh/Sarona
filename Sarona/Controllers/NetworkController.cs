@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sarona.Models;
 using Sarona.ViewModels;
@@ -8,10 +9,11 @@ using System.Linq;
 
 namespace Sarona.Controllers
 {
+    [Authorize]
     public class NetworkController : Controller
     {
         private SaronaRepository repository;
-
+        
         public NetworkController(SaronaRepository repo)
         {
             repository = repo;
@@ -44,6 +46,7 @@ namespace Sarona.Controllers
         {
             if (ModelState.IsValid)
             {
+                newExch.Username = User.Identity.Name;
                 repository.AddExchange(newExch);
                 TempData["message"] = $"{newExch.Name} added successfully.";
                 return RedirectToAction(nameof(District), new { district = newExch.Area });
@@ -73,6 +76,7 @@ namespace Sarona.Controllers
         {
             if (ModelState.IsValid)
             {
+                exch.Username = User.Identity.Name;
                 repository.EditExchange(exch);
                 TempData["message"] = $"{exch.Name} edited successfully.";
                 return RedirectToAction(nameof(Exchange), new { district = exch.Area, exchange = exch.Abb });
@@ -99,6 +103,10 @@ namespace Sarona.Controllers
                     Id = x.Id,
                     Abb = x.Abb,
                     Name = x.Name,
+                    CreatedOn = x.CreatedOn,
+                    ModifiedOn = x.ModifiedOn,
+                    Area = x.Area,
+                    Username = x.Username,
                     NetworkElements = x.NetworkElements.Select(y => new NetworkElement()
                     {
                         Model = y.Model,
@@ -109,6 +117,7 @@ namespace Sarona.Controllers
                         Remark = y.Remark,
                         UsedCapacity = y.UsedCapacity,
                         Type = y.Type,
+                        Owner = y.Owner,
                         Customer = new Customer() { Name = y.Customer.Name, Abb = y.Customer.Abb },
                         Parent = new NetworkElement() { Name = y.Parent.Name }
                     }).ToList()
@@ -145,126 +154,18 @@ namespace Sarona.Controllers
 
         public IActionResult Links(Area district, string exchange, string ne)
         {
-            var networkElement = repository.NetworkElements.Where(x => x.Name == ne && x.Exchange.Abb == exchange && x.Exchange.Area == district)
-                .Select(x => new NetworkElement()
-                {
-                    Id = x.Id,
-                    CustomerId = x.CustomerId,
-                    ExchangeId = x.ExchangeId,
-                    Exchange = new Exchange() { Name = x.Exchange.Name },
-                    InstalledCapacity = x.InstalledCapacity,
-                    UsedCapacity = x.UsedCapacity,
-                    Manufacturer = x.Manufacturer,
-                    Model = x.Model,
-                    Name = x.Name,
-                    Type = x.Type,
-                    Remark = x.Remark,
-                    ParentId = x.ParentId,
-                    LinksOnEnd1 = x.LinksOnEnd1.OrderBy(z => z.End2.Name).Select(y => new Link()
-                    {
-                        Channels = y.Channels,
-                        Type = y.Type,
-                        CreatedOn = y.CreatedOn,
-                        Direction = y.Direction,
-                        Remark = y.Remark,
-                        End2Id = y.End2Id,
-                        End2 = new NetworkElement() { Name = y.End2.Name, NetworkType = y.End2.NetworkType },
-                        Id = y.Id
-                    }),
-                }).FirstOrDefault();
+            
             var model = new LinksViewModel()
             {
                 Misc = repository.Miscs.ToArray(),
-                NE = networkElement
+                NE = repository.GetLinks(ne)
             };
 
             return View("Links", model);
         }
-        [HttpGet]
-        public IActionResult NetworkElement(Area district, string exchange, string ne)
-        {
-
-            var networkElement = repository.NetworkElements.Where(x => x.Name == ne && x.Exchange.Abb == exchange && x.Exchange.Area == district)
-                .Select(x => new NetworkElement()
-                {
-                    Id = x.Id,
-                    CustomerId = x.CustomerId,
-                    ExchangeId = x.ExchangeId,
-                    Exchange = new Exchange() { Name = x.Exchange.Name },
-                    InstalledCapacity = x.InstalledCapacity,
-                    UsedCapacity = x.UsedCapacity,
-                    Manufacturer = x.Manufacturer,
-                    Model = x.Model,
-                    Name = x.Name,
-                    Type = x.Type,
-                    Remark = x.Remark,
-                    ParentId = x.ParentId,
-                    NetworkElements = x.NetworkElements.Select(z => z),
-                    NumberingPoolNetworkElements = x.NumberingPoolNetworkElements.OrderBy(a => a.Numbering.From).Select(z => new NumberingPoolNetworkElement()
-                    {
-                        Numbering = z.Numbering
-                    }),
-                    LinksOnEnd1 = x.LinksOnEnd1.OrderBy(z => z.End2.Name).Select(y => new Link()
-                    {
-                        Channels = y.Channels,
-                        Type = y.Type,
-                        CreatedOn = y.CreatedOn,
-                        Direction = y.Direction,
-                        Remark = y.Remark,
-                        End2Id = y.End2Id,
-                        End2 = new NetworkElement() { Name = y.End2.Name, NetworkType = y.End2.NetworkType },
-                        Id = y.Id
-                    }).ToList(),
-                    Customer = x.Customer,
-                }).FirstOrDefault();
 
 
-            if (networkElement is null)
-                throw new System.Exception("No NE.");
-            switch (networkElement.NetworkType)
-            {
-                case NeType.Core:
-                    return CoreElement(networkElement);
-                case NeType.Access:
-                    return AccessElement(networkElement);
-                case NeType.Remote:
-                    return RemoteElement(networkElement);
-                case NeType.PBX:
-                    return PbxElement(networkElement);
-                case NeType.IP_PBX:
-                    return CoreElement(networkElement);
-                default:
-                    throw new System.Exception("No page found!");
-            }
-        }
-        private IActionResult CoreElement(NetworkElement ne)
-        {
-            var model = new CoreViewModel()
-            {
-                NE = ne,
-                Miscs = repository.Miscs.OrderBy(x => x.Name).ToArray()
-            };
-            return View("Core", model);
-        }
-        private IActionResult RemoteElement(NetworkElement ne)
-        {
-            return View("Core");
-        }
-        private IActionResult AccessElement(NetworkElement ne)
-        {
-            return View("Core");
-        }
-        private IActionResult PbxElement(NetworkElement ne)
-        {
-            return View("Core");
-        }
 
-        public IActionResult DeleteNe(int id)
-        {
-            var ne = repository.NetworkElements.Where(x => x.Id == id).Include(x => x.Exchange).First();
-            repository.DeleteNetworkElement(ne);
-            return RedirectToAction(nameof(Exchange), new { exchange = ne.Exchange.Abb, district = ne.Exchange.Area });
-        }
 
         [AcceptVerbs("Get", "Post")]
         public IActionResult NeNameValidation(string name)
@@ -283,10 +184,11 @@ namespace Sarona.Controllers
             if (ModelState.IsValid)
             {
                 repository.EditNetworkElement(ne);
-                return RedirectToAction(nameof(NetworkElement), new { district = exch.Area, exchange = exch.Abb, ne = ne.Name });
+                TempData["message"] = $"{ne.Name} edited successfully.";
+                return RedirectToAction(nameof(Specifications), new { district = exch.Area, exchange = exch.Abb, ne = ne.Name });
             }
             else
-                return NetworkElement(exch.Area, exch.Abb, ne.Name);
+                return Specifications(exch.Area, exch.Abb, ne.Name);
         }
         /// <summary>
         /// Add Link.
@@ -314,6 +216,166 @@ namespace Sarona.Controllers
                 return Json("Number of channels for ISUP links must be N*31");
             else
                 return Json(true);
+        }
+        public IActionResult Specifications(Area district, string exchange, string ne)
+        {
+            var q = repository.NetworkElements
+                .Where(x => x.Name == ne)
+                .Select(x => new NetworkElement()
+                {
+                    NetworkType = x.NetworkType,
+                    Id = x.Id
+                })
+                .First();
+            switch (q.NetworkType)
+            {
+                case NeType.Core:
+                    return CoreElement(q);
+                case NeType.Access:
+                    return AccessElement(q);
+                case NeType.Remote:
+                    return RemoteElement(q);
+                case NeType.PBX:
+                    return PbxElement(q);
+                case NeType.IP_PBX:
+                    return PbxElement(q);
+                default:
+                    return BadRequest();
+            }
+        }
+        private IActionResult CoreElement(NetworkElement ne)
+        {
+            var childrenCap = repository.NetworkElements
+                .Where(x => x.ParentId == ne.Id)
+                .GroupBy(x => x.NetworkType)
+                .Select(x => new CapacitySpecs
+                {
+                    Type = x.Key,
+                    Count = x.Count(),
+                    SumInstalled = x.Sum(y => (long)y.InstalledCapacity),
+                    SumUsed = x.Sum(y => (long)y.UsedCapacity)
+                })
+                .ToList();
+
+            var linksSpecsByLinkType = repository.Links
+                .Where(l => l.End1Id == ne.Id)
+                .GroupBy(x => x.Type)
+                .Select(x => new LinksSpecsByLinkType()
+                {
+                    Type = x.Key,
+                    Count = x.Count(),
+                    SumChannels = x.Sum(y => y.Channels)
+                })
+                .ToList();
+
+            var linksSpecsByNeType = repository.Links
+                .Where(l => l.End1Id == ne.Id)
+                .GroupBy(x => x.End2.NetworkType)
+                .Select(x => new LinksSpecsByNeType()
+                {
+                    Type = x.Key,
+                    Count = x.Count(),
+                    SumChannels = x.Sum(y => y.Channels)
+                })
+                .ToList();
+
+            var model = new CoreViewModel()
+            {
+                NE = repository.NetworkElements.Where(x => x.Id == ne.Id).Include(x => x.Exchange).First(),
+                Remotes = childrenCap.Where(x => x.Type == NeType.Remote).FirstOrDefault(),
+                Accesses = childrenCap.Where(x => x.Type == NeType.Access).FirstOrDefault(),
+                CoreLinks = linksSpecsByNeType.Where(x => x.Type == NeType.Core).FirstOrDefault(),
+                PbxLinks = linksSpecsByNeType.Where(x => x.Type == NeType.PBX).FirstOrDefault(),
+                IpPbxLinks = linksSpecsByNeType.Where(x => x.Type == NeType.IP_PBX).FirstOrDefault(),
+                IsupLinks = linksSpecsByLinkType.Where(x => x.Type == LinkType.ISUP).FirstOrDefault(),
+                SipLinks = linksSpecsByLinkType.Where(x => x.Type == LinkType.SIP).FirstOrDefault(),
+                Miscs = repository.Miscs.OrderBy(x => x.Name).ToArray()
+            };
+            return View("Core", model);
+        }
+        private IActionResult RemoteElement(NetworkElement ne)
+        {
+            var model = new RemoteElementViewModel()
+            {
+                Miscs = repository.Miscs.OrderBy(x => x.Name).ToArray(),
+                NE = repository.NetworkElements
+                .Where(x => x.Id == ne.Id)
+                .Include(x => x.Parent)
+                .ThenInclude(x=>x.Exchange)
+                .Include(x => x.Exchange)
+                .First()
+            };
+            return View("RemoteElement",model);
+        }
+        private IActionResult AccessElement(NetworkElement ne)
+        {
+            var model = new RemoteElementViewModel()
+            {
+                Miscs = repository.Miscs.OrderBy(x => x.Name).ToArray(),
+                NE = repository.NetworkElements
+                .Where(x => x.Id == ne.Id)
+                .Include(x => x.Parent)
+                .ThenInclude(x => x.Exchange)
+                .Include(x => x.Exchange)
+                .First()
+            };
+            return View("AccessElement", model);
+        }
+        private IActionResult PbxElement(NetworkElement ne)
+        {
+            var model = new RemoteElementViewModel()
+            {
+                Miscs = repository.Miscs.OrderBy(x => x.Name).ToArray(),
+                NE = repository.NetworkElements.Where(x => x.Id == ne.Id).Include(x => x.Parent).Include(x => x.Exchange).First()
+            };
+            return View("RemoteElement", model);
+        }
+
+        public IActionResult DeleteLink(Area district, string exchange, string ne, long id)
+        {
+            repository.DeleteLink(id);
+            TempData["message"] = "Link deleted successfully.";
+            return RedirectToAction(nameof(Links), new { district, exchange, ne });
+        }
+        [HttpPost]
+        public IActionResult EditLink(Area district, string exchange, string ne, [Bind(Prefix = nameof(LinksViewModel.EditLink))]Link link)
+        {
+            if (ModelState.IsValid)
+            {
+                repository.EditLink(link);
+                TempData["message"] = $"Link edited successfully.";
+                return RedirectToAction(nameof(Links), new { district, exchange, ne });
+            }
+            else
+                return Links(district, exchange, ne);
+        }
+        public IActionResult DeleteNe(Area district, string exchange, string ne, int id)
+        {
+            var networkElement = repository.NetworkElements.Where(x => x.Id == id).First();
+            repository.DeleteNetworkElement(networkElement);
+            TempData["message"] = $"{networkElement.Name} deleted successfuly.";
+            return RedirectToAction(nameof(Exchange), new { district, exchange });
+        }
+
+        public IActionResult Remotes(Area district, string exchange, string ne)
+        {
+            var model = new RemotesViewModel()
+            {
+                NE = repository.NetworkElements.Where(x => x.Name == ne).Include(x=>x.Exchange).First()
+                
+            };
+            model.Remotes = repository.NetworkElements.Where(x => x.ParentId == model.NE.Id && x.NetworkType == NeType.Remote).Include(x => x.Exchange);
+            return View("Remotes", model);
+        }
+        public IActionResult Accesses(Area district, string exchange, string ne)
+        {
+            var model = new RemotesViewModel()
+            {
+                NE = repository.NetworkElements.Where(x => x.Name == ne).Include(x => x.Exchange).First()
+
+            };
+            model.Remotes = repository.NetworkElements.Where(x => x.ParentId == model.NE.Id && x.NetworkType == NeType.Access).Include(x => x.Exchange);
+            return View("Remotes", model);
         }
     }
 }

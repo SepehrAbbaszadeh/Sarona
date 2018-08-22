@@ -16,11 +16,12 @@ namespace Sarona.API
         SaronaRepository repository;
         public NEController(SaronaRepository repo) => repository = repo;
         // GET: api/<controller>
-        [HttpGet("{abb}/{type}")]
+        [HttpGet("abb/{abb}/{type}")]
         public IEnumerable<NetworkElement> Get(string abb, NeType type)
         {
             return repository.NetworkElements.Where(x => x.Exchange.Abb == abb && x.NetworkType == type);
         }
+        
 
         
     }

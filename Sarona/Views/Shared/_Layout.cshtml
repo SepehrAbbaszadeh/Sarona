@@ -1,5 +1,5 @@
 ﻿
-@{ 
+@{
     var selectedController = ViewContext.RouteData.Values["controller"].ToString().ToLower();
 
 }
@@ -8,7 +8,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="Traffic & numbering department" />
@@ -40,21 +39,24 @@
                         <a class="nav-link" href="#">Numbering</a>
                     </li>
                     <li class="nav-item @(selectedController=="reports"?"active":"")">
-                        <a class="nav-link" href="#">Reports</a>
+                        <a class="nav-link" asp-action="Shenasname" asp-controller="Reports">Reports</a>
                     </li>
+                    @if (Context.User.IsInRole("admin"))
+                    {
+                        <li class="nav-item @(selectedController=="admin"?"active":"")">
+                            <a class="nav-link" asp-action="Users" asp-controller="Admin">Admin</a>
+                        </li>
+                    }
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true">
-                            Dropdown link
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown">
+                            @Context.User.Identity.Name
                         </a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
+                            <a class="dropdown-item" href="#">Change Password</a>
+                            <a class="dropdown-item" asp-action="Logout" asp-controller="Account">Logout</a>
                         </div>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Logout</a>
-                    </li>
+
                 </ul>
                 <form class="form-inline my-2 my-lg-0">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -67,10 +69,10 @@
         @RenderBody()
     </main>
     <footer class="footer text-center small text-white p-2">
-        Traffic and Numbering Department <br />Powered by ASP.NET Core 2.1, Entity Framework 2.1 and Bootstrap 4.
+        &copy;Traffic and Numbering Department <br />Powered by ASP.NET Core 2.1, Entity Framework 2.1 and Bootstrap 4.
     </footer>
     <script src="~/js/main.min.js" asp-append-version="true"></script>
     <script src="~/js/Site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts",false)
+    @await RenderSectionAsync("Scripts", false)
 </body>
 </html>

@@ -12,5 +12,6 @@ namespace Sarona.ViewModels
         public IEnumerable<Link> Links => NE.LinksOnEnd1;
         public IEnumerable<Misc> Misc { get; set; }
         public Link NewLink { get; set; }
+        public Link EditLink { get; set; }
     }
 }
