@@ -19,7 +19,7 @@ namespace Sarona.API
         [HttpGet("{district}")]
         public IEnumerable<Exchange> GetExchanges(Area district)
         {
-            var res =  repository.Exchanges.Where(x => x.Area == district).ToArray();
+            var res =  repository.Exchanges.Where(x => x.Area == district).OrderBy(x=>x.Abb).ToArray();
             return res;
         }
     }

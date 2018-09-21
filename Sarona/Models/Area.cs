@@ -1,18 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Sarona.Models
 {
     public enum Area
     {
-        A2=2,
-        A3=3,
-        A4=4,
-        A5=5,
-        A6=6,
-        A7=7,
-        A8=8
+        [Display(Name = "Area 2")]
+        A2 = 2,
+        [Display(Name = "Area 3")]
+        A3 = 3,
+        [Display(Name = "Area 4")]
+        A4 = 4,
+        [Display(Name = "Area 5")]
+        A5 = 5,
+        [Display(Name = "Area 6")]
+        A6 = 6,
+        [Display(Name = "Area 7")]
+        A7 = 7,
+        [Display(Name = "Area 8")]
+        A8 = 8,
+        //[Display(Name = "Other Networks")]
+        //ON = 9
+
     }
 }

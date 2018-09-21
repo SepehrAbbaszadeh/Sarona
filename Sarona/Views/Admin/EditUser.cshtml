@@ -1,0 +1,22 @@
+﻿@model AppUser
+<div class="row">
+    <div class="@Settings.Col3">
+        <partial name="_Menu" />
+    </div>
+    <div class="@Settings.Col9">
+        <h4>Edit User</h4>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <form asp-action="Edit" method="post">
+            <div class="form-group">
+                <label asp-for="UserName"></label>
+                <input asp-for="UserName" class="form-control" disabled />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input name="password" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Users" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

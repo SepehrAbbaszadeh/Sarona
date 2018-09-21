@@ -27,6 +27,7 @@ namespace Sarona.Controllers
             };
             return View("Customers", model);
         }
+        [HttpPost]
         public IActionResult AddCustomer([Bind(Prefix=nameof(CustomersViewModel.NewCustomer))] Customer newCustomer)
         {
             if(ModelState.IsValid)

@@ -5,42 +5,32 @@ using Sarona.Models;
 using Sarona.ViewModels;
 using System.Linq;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Sarona.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="Admins, Traffic")]
     public class NetworkController : Controller
     {
         private SaronaRepository repository;
-        
+
         public NetworkController(SaronaRepository repo)
         {
             repository = repo;
         }
-        /// <summary>
-        /// View Area page.[HttpGet]
-        /// URL Example: Network/A8
-        /// </summary>
-        /// <param name="district">Name of area.</param>
-        /// <returns></returns>
+
         [HttpGet]
         public IActionResult District(Area district = Area.A2)
         {
             var model = new DistrictViewModel
             {
-                Exchanges = repository.Exchanges.Where(x => x.Area == district).OrderBy(x => x.Abb),
+                Exchanges = repository.Exchanges.Where(x => x.Area == district).OrderBy(x => x.Abb).GroupBy(x=>x.Providence,x=>x,(key,g)=>new  ProvidenceExchanges{ Providence = key,Exchanges = g.ToList() }),
                 NewExchange = new Exchange(),
-                SelectedDistrict = district
+                SelectedDistrict = district,
+                Miscs = repository.Miscs.Where(x=>x.Type == MiscType.Providence).OrderBy(x=>x.Name).ToArray()
             };
             return View("District", model);
         }
-        /// <summary>
-        /// Add new exchange to an area. [HttpPost]
-        /// URL Example: /Network/A8
-        /// </summary>
-        /// <param name="newExch"></param>
-        /// <returns></returns>
+
         [HttpPost]
         public IActionResult District([Bind(Prefix = nameof(DistrictViewModel.NewExchange))]Exchange newExch)
         {
@@ -54,9 +44,7 @@ namespace Sarona.Controllers
             else
             {
                 return District(newExch.Area);
-                //return RedirectToAction(nameof(District), new { district = newAbb.Area ?? Area.A2 });
             }
-
         }
 
         [HttpPost]
@@ -86,11 +74,7 @@ namespace Sarona.Controllers
                 return Exchange(exch.Area, exch.Abb);
             }
         }
-        /// <summary>
-        /// Get exchange page.
-        /// </summary>
-        /// <param name="exchange">Exchange's abbreviation</param>
-        /// <returns></returns>
+
         [HttpGet]
         public IActionResult Exchange(Area district, string exchange)
         {
@@ -107,6 +91,7 @@ namespace Sarona.Controllers
                     ModifiedOn = x.ModifiedOn,
                     Area = x.Area,
                     Username = x.Username,
+                    Providence=x.Providence,
                     NetworkElements = x.NetworkElements.Select(y => new NetworkElement()
                     {
                         Model = y.Model,
@@ -154,7 +139,7 @@ namespace Sarona.Controllers
 
         public IActionResult Links(Area district, string exchange, string ne)
         {
-            
+
             var model = new LinksViewModel()
             {
                 Misc = repository.Miscs.ToArray(),
@@ -163,9 +148,6 @@ namespace Sarona.Controllers
 
             return View("Links", model);
         }
-
-
-
 
         [AcceptVerbs("Get", "Post")]
         public IActionResult NeNameValidation(string name)
@@ -190,19 +172,13 @@ namespace Sarona.Controllers
             else
                 return Specifications(exch.Area, exch.Abb, ne.Name);
         }
-        /// <summary>
-        /// Add Link.
-        /// </summary>
-        /// <param name="district"></param>
-        /// <param name="exchange"></param>
-        /// <param name="ne"></param>
-        /// <param name="newLink"></param>
-        /// <returns></returns>
+
         [HttpPost]
         public IActionResult Links(Area district, string exchange, string ne, [Bind(Prefix = nameof(LinksViewModel.NewLink))]Link newLink)
         {
             if (ModelState.IsValid)
             {
+                newLink.Username = User.Identity.Name;
                 repository.AddLink(newLink);
                 TempData["message"] = $"New \"{newLink.Type}\" link with \"{newLink.Channels}\" channels added successfully.";
                 return RedirectToAction(nameof(Links));
@@ -301,11 +277,11 @@ namespace Sarona.Controllers
                 NE = repository.NetworkElements
                 .Where(x => x.Id == ne.Id)
                 .Include(x => x.Parent)
-                .ThenInclude(x=>x.Exchange)
+                .ThenInclude(x => x.Exchange)
                 .Include(x => x.Exchange)
                 .First()
             };
-            return View("RemoteElement",model);
+            return View("RemoteElement", model);
         }
         private IActionResult AccessElement(NetworkElement ne)
         {
@@ -351,8 +327,7 @@ namespace Sarona.Controllers
         }
         public IActionResult DeleteNe(Area district, string exchange, string ne, int id)
         {
-            var networkElement = repository.NetworkElements.Where(x => x.Id == id).First();
-            repository.DeleteNetworkElement(networkElement);
+            var networkElement = repository.DeleteNetworkElement(id);
             TempData["message"] = $"{networkElement.Name} deleted successfuly.";
             return RedirectToAction(nameof(Exchange), new { district, exchange });
         }
@@ -361,8 +336,8 @@ namespace Sarona.Controllers
         {
             var model = new RemotesViewModel()
             {
-                NE = repository.NetworkElements.Where(x => x.Name == ne).Include(x=>x.Exchange).First()
-                
+                NE = repository.NetworkElements.Where(x => x.Name == ne).Include(x => x.Exchange).First()
+
             };
             model.Remotes = repository.NetworkElements.Where(x => x.ParentId == model.NE.Id && x.NetworkType == NeType.Remote).Include(x => x.Exchange);
             return View("Remotes", model);

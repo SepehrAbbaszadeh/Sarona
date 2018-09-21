@@ -20,7 +20,7 @@ namespace Sarona.API
         [HttpGet("Name/{name}")]
         public IEnumerable<Customer> GetName(string name)
         {
-            return repository.Customers.Where(x => EF.Functions.Like(x.Name,$"%{name}%")).ToList();
+            return repository.Customers.Where(x => EF.Functions.Like(x.Name,$"%{name}%")).OrderBy(x=>x.Name).ToList();
         }
 
         // GET api/<controller>/5

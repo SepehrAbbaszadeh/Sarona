@@ -1,0 +1,372 @@
+﻿@model NumberingPoolViewModel
+@{
+    ViewData["Title"] = "Numbering Pool";
+}
+
+<h3>Numbering Pool</h3>
+<div asp-validation-summary="All" class="text-danger"></div>
+@if (TempData.Keys.Contains("message"))
+{
+    <div class="alert alert-success">
+        @TempData["message"]
+    </div>
+}
+<div class="dropdown">
+    <button type="button" class="btn btn-primary dropdown-toggle my-3" data-toggle="dropdown">
+        Add Numbering
+    </button>
+    <div class="dropdown-menu">
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPrefixModal">New Prefix</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTel30">New Range</a>
+    </div>
+    <div>
+        <form method="get" asp-action="Pool" class="form-inline">
+            <label class="sr-only" asp-for="Prefix">Prefix</label>
+            <input placeholder="Prefix" type="text" class="form-control mb-2 mr-sm-2" asp-for="Prefix" />
+            <button type="submit" class="btn btn-primary mb-2">Search</button>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="@Settings.TableClass">
+            <thead>
+                <tr>
+                    <th>Prefix</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Charging</th>
+                    <th>Type</th>
+                    <th>Routing</th>
+                    <th>Float</th>
+                    <th>Status</th>
+                    <th>Remark</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var number in Model.Prefixes)
+                {
+                    <tr>
+                        <td>@number.Prefix</td>
+                        <td>@number.Min</td>
+                        <td>@number.Max</td>
+                        <td>@number.ChargingCase</td>
+                        <td>@number.NumberType</td>
+                        <td>@number.RoutingType</td>
+                        <td><span class="@(@number.IsFloat ? "fa fa-check":"fa fa-times")"></span></td>
+                        <td>@number.Status</td>
+                        <td>@number.Remark</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" data-html="true" title="User: @number.Username <br/>Created at: @number.CreatedOn.GetPersianDate()<br/>Modified at: @number.ModifiedOn.GetPersianDate()<br/>Expire On: @number.ExpireDate.GetPersianDate()">Details</button>
+                                <button type="button" onclick="ShowEditPrefix(@number.Id)" class="btn btn-warning">Edit</button>
+                                <button type="button" onclick="ShowDeletePrefix(@number.Id)" class="btn btn-danger">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div class="modal fade" id="addPrefixModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Prefix</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="AddPrefix" method="post" onsubmit="return PrefixValidation($('#NewPrefix_Prefix').val(), 'prefixValidation');">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.Prefix"></label><div><span class="text-danger" id="prefixValidation"></span><span asp-validation-for="NewPrefix.Prefix" class="text-danger"></span></div>
+                                <input asp-for="NewPrefix.Prefix" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.Min"></label><span asp-validation-for="NewPrefix.Min" class="text-danger"></span>
+                                <input asp-for="NewPrefix.Min" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.Max"></label><div><span asp-validation-for="NewPrefix.Max" class="text-danger"></span></div>
+                                <input asp-for="NewPrefix.Max" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.ChargingCase"></label><div><span class="text-danger" id="abbValidation"></span><span asp-validation-for="NewPrefix.ChargingCase" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewPrefix.ChargingCase">
+                                    @foreach (var charging in Model.Miscs.Where(x => x.Type == MiscType.ChargingCase))
+                                    {
+                                        if (charging.Name == "شهری")
+                                        {
+                                            <option selected value="@charging.Name">@charging.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@charging.Name">@charging.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="NewPrefix.IsFloat">
+                                <label class="custom-control-label" asp-for="NewPrefix.IsFloat">Float</label>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.ExpireDate"></label>
+                                <input class="form-control" type="text" readonly id="pcal1" />
+                                <input type="hidden" asp-for="NewPrefix.ExpireDate" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.NumberType"></label><div><span asp-validation-for="NewPrefix.NumberType" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewPrefix.NumberType">
+                                    @foreach (var numberType in Model.Miscs.Where(x => x.Type == MiscType.NumberType))
+                                    {
+                                        if (numberType.Name == "شهری")
+                                        {
+                                            <option selected value="@numberType.Name">@numberType.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@numberType.Name">@numberType.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.RoutingType"></label><div><span asp-validation-for="NewPrefix.RoutingType" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewPrefix.RoutingType">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.RoutingType))
+                                    {
+                                        if (item.Name == "استانی")
+                                        {
+                                            <option selected value="@item.Name">@item.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Name">@item.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.Owner"></label><div><span asp-validation-for="NewPrefix.Owner" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewPrefix.Owner">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Owner))
+                                    {
+                                        if (item.Name == "TCT")
+                                        {
+                                            <option selected value="@item.Name">@item.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Name">@item.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.Remark"></label>
+                                <textarea asp-for="NewPrefix.Remark" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editPrefixModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Prefix</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditPrefix" method="post" onsubmit="return PrefixValidation($('#NewPrefix_Prefix').val(), 'prefixValidation');">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.Prefix"></label><div><span class="text-danger" id="prefixValidation"></span><span asp-validation-for="EditPrefix.Prefix" class="text-danger"></span></div>
+                                <input asp-for="EditPrefix.Prefix" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.Min"></label><div><span asp-validation-for="EditPrefix.Min" class="text-danger"></span></div>
+                                <input asp-for="EditPrefix.Min" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.Max"></label><div><span asp-validation-for="EditPrefix.Max" class="text-danger"></span></div>
+                                <input asp-for="EditPrefix.Max" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.ChargingCase"></label><div><span class="text-danger" id="abbValidation"></span><span asp-validation-for="EditPrefix.ChargingCase" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="EditPrefix.ChargingCase">
+                                    @foreach (var charging in Model.Miscs.Where(x => x.Type == MiscType.ChargingCase))
+                                    {
+                                        <option value="@charging.Name">@charging.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="EditPrefix.IsFloat">
+                                <label class="custom-control-label" asp-for="EditPrefix.IsFloat">Float</label>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.ExpireDate"></label>
+                                <input class="form-control" type="text" readonly id="pcal2" />
+                                <input type="hidden" asp-for="EditPrefix.ExpireDate" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.NumberType"></label><div><span asp-validation-for="EditPrefix.NumberType" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="EditPrefix.NumberType">
+                                    @foreach (var numberType in Model.Miscs.Where(x => x.Type == MiscType.NumberType))
+                                    {
+                                        <option value="@numberType.Name">@numberType.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.RoutingType"></label><div><span asp-validation-for="EditPrefix.RoutingType" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="EditPrefix.RoutingType">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.RoutingType))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.Owner"></label><div><span asp-validation-for="EditPrefix.Owner" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="EditPrefix.Owner">
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Owner))
+                                    {
+                                        <option value="@item.Name">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.Remark"></label>
+                                <textarea asp-for="EditPrefix.Remark" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Edit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deletePrefixModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Prefix</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form asp-action="deletePrefix" method="post">
+                <div class="modal-body">
+                    <p id="deleteMessage"></p>
+                    Are you sure to delete this prefix?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="hidden" name="id" id="deletePrefixId" />
+                    <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            var objCal1 = new AMIB.persianCalendar('pcal1', {
+                extraInputID: "NewPrefix_ExpireDate",
+                extraInputFormat: "YYYY/MM/DD",
+                initialDate: "1500/01/01",
+                btnClassName: "fa fa-calendar-alt float-right"
+            });
+
+            var objCal2 = new AMIB.persianCalendar('pcal2', {
+                extraInputID: "EditPrefix_ExpireDate",
+                extraInputFormat: "MM-DD-YYYY",
+                btnClassName: "fa fa-calendar-alt float-right"
+            });
+
+
+
+        });
+
+        function ShowDeletePrefix(id) {
+            $("#deletePrefixId").val(id);
+            $('#deletePrefixModal').modal();
+
+        }
+
+
+        function ShowEditPrefix(id) {
+            $.get("/numbering/prefix/" + id,
+                function (result) {
+                    $("#EditPrefix_Prefix").val(result.prefix);
+                    $("#EditPrefix_Min").val(result.min);
+                    $("#EditPrefix_Max").val(result.max);
+                    $("#EditPrefix_CharginCase").val(result.chargingCase);
+                    $("#EditPrefix_Remark").val(result.remark);
+                    $("#EditPrefix_Owner").val(result.owner);
+                    $("#EditPrefix_NumberType").val(result.numberType);
+                    $("#EditPrefix_RoutingType").val(result.routingType);
+                    $("#EditPrefix_ExpireDate").val(result.expireDate);
+                    if (result.isFloat === true)
+                        $("#EditPrefix_IsFloat").prop("checked", true);
+                    var date = new Date(result.expireDate);
+                    var y = date.getFullYear();
+                    var m = date.getMonth() + 1;
+                    var d = date.getDate();
+                    var pDate = gregorian_to_jalali(y, m, d);
+                    $("#pcal2").val(pDate.join("/"));
+                    $("#editPrefixModal").modal();
+                });
+
+        }
+
+    </script>
+}

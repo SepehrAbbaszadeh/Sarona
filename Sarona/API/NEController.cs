@@ -19,7 +19,7 @@ namespace Sarona.API
         [HttpGet("abb/{abb}/{type}")]
         public IEnumerable<NetworkElement> Get(string abb, NeType type)
         {
-            return repository.NetworkElements.Where(x => x.Exchange.Abb == abb && x.NetworkType == type);
+            return repository.NetworkElements.Where(x => x.Exchange.Abb == abb && x.NetworkType == type).OrderBy(x=>x.Name);
         }
         
 

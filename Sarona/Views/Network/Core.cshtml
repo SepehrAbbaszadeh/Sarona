@@ -127,7 +127,7 @@
                             <div class="form-group">
                                 <label asp-for="NE.Owner"></label>
                                 <select asp-for="NE.Owner" class="form-control">
-                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreOwner))
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Owner))
                                     {
                                         <option value="@item.Name">@item.Name</option>
                                     }

@@ -14,6 +14,7 @@ namespace Sarona.Models
         public DbSet<Exchange> Exchanges { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Link> Links { get; set; }
+        public DbSet<LinkHistory> LinkHistories { get; set; }
         public DbSet<NumberingPool> NumberingPools { get; set; }
         public DbSet<NetworkElement> NetworkElements { get; set; }
         public DbSet<Misc> Miscs { get; set; }
@@ -48,7 +49,7 @@ namespace Sarona.Models
                        "SELECT @result = (NEXT VALUE FOR RemoteSequence)", result);
             return (long)result.Value;
         }
-        public long GetNexAccessSequenceValue()
+        public long GetNextAccessSequenceValue()
         {
             SqlParameter result = new SqlParameter("@result", System.Data.SqlDbType.BigInt)
             {
@@ -70,8 +71,12 @@ namespace Sarona.Models
                 .HasKey(x => new { x.NumberingPoolId, x.NetworkElementId });
 
             modelBuilder.Entity<Abbreviation>()
-                .HasIndex(x => x.Abb).IsUnique();
-            
+                .HasIndex(x => x.Abb)
+                .IsUnique();
+
+            modelBuilder.Entity<NumberingPool>()
+                .HasIndex(x => x.Prefix)
+                .IsUnique();
 
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
@@ -79,6 +84,15 @@ namespace Sarona.Models
                 {
                     fk.DeleteBehavior = DeleteBehavior.Restrict;
                 }
+            }
+
+            var fks = modelBuilder.Model
+                .GetOrAddEntityType(typeof(LinkHistory))
+                .GetForeignKeys();
+
+            foreach (var fk in fks)
+            {
+                fk.DeleteBehavior = DeleteBehavior.Cascade;
             }
 
 

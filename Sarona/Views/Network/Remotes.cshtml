@@ -9,36 +9,49 @@
     </div>
     <div class="@Settings.Col9">
         <h3>@Model.NE.Name</h3>
-        <table class="@Settings.TableClickableClass my-3">
-            <thead>
-                <tr>
-                    <td>Name</td>
-                    <td>Exchange</td>
-                    <td>Area</td>
-                    <td>Type</td>
-                    <td>Model</td>
-                    <td>Manufacturer</td>
-                    <td>Installed Capacity</td>
-                    <td>Used Capacity</td>
-                    <td>Remark</td>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var remote in Model.Remotes)
-                {
+        <div class="table-responsive pb-3">
+            <table id="remoteTable" style="width:100%" hidden class="@Settings.TableClickableClass my-3">
+                <thead>
                     <tr>
-                        <td><a asp-route-district ="@remote.Exchange.Area" asp-route-exchange="@remote.Exchange.Abb" asp-route-ne="@remote.Name" asp-action="Specifications">@remote.Name</a></td>
-                        <td>@remote.Exchange.Abb (@remote.Exchange.Name)</td>
-                        <td>@remote.Exchange.Area</td>
-                        <td>@remote.Type</td>
-                        <td>@remote.Model</td>
-                        <td>@remote.Manufacturer</td>
-                        <td>@remote.InstalledCapacity</td>
-                        <td>@remote.UsedCapacity</td>
-                        <td>@remote.Remark</td>
+                        <td>Name</td>
+                        <td>Exchange</td>
+                        <td>Area</td>
+                        <td>Type</td>
+                        <td>Model</td>
+                        <td>Manufacturer</td>
+                        <td>Installed Capacity</td>
+                        <td>Used Capacity</td>
+                        <td>Remark</td>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var remote in Model.Remotes)
+                    {
+                        <tr>
+                            <td><a asp-route-district="@remote.Exchange.Area" asp-route-exchange="@remote.Exchange.Abb" asp-route-ne="@remote.Name" asp-action="Specifications">@remote.Name</a></td>
+                            <td>@remote.Exchange.Abb (@remote.Exchange.Name)</td>
+                            <td>@remote.Exchange.Area</td>
+                            <td>@remote.Type</td>
+                            <td>@remote.Model</td>
+                            <td>@remote.Manufacturer</td>
+                            <td>@remote.InstalledCapacity</td>
+                            <td>@remote.UsedCapacity</td>
+                            <td>@remote.Remark</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+
+@section Scripts{ 
+    <script>
+        $(document).ready(function () {
+            $('#remoteTable').DataTable();
+            $('#remoteTable').removeAttr('hidden');
+        });
+        
+    </script>
+}

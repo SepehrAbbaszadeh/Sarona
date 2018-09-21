@@ -21,6 +21,7 @@ namespace Sarona.Models
 
     public class Exchange : Abbreviation
     {
+        public string Providence { get; set; }
         public Area Area { get; set; }
         public IEnumerable<NetworkElement> NetworkElements { get; set; }
     }

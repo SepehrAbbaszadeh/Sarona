@@ -15,39 +15,36 @@
             <div class="alert alert-success">
                 @TempData["message"]
             </div>
-
         }
-
         <button type="button" class="btn btn-primary my-3" data-toggle="modal" data-target="#addLink">Add Link</button>
-        <form id="getExcel" asp-action="Links" asp-controller="Reports" method="get">
+        <form id="getExcel" asp-action="Links" asp-controller="Report" method="get">
             <i onclick="$('#getExcel').submit()" class="fas fa-file-excel fa-2x float-right"></i>
             <input type="hidden" name="name" value="@Model.NE.Name" />
         </form>
 
-        <ul class="nav nav-tabs" id="links" role="tablist">
+        <ul class="nav nav-tabs" id="links">
             <li class="nav-item">
                 <a class="nav-link active" id="core-tab" data-toggle="tab" href="#core">Core</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="pbx-tab" data-toggle="tab" href="#pbx">PBX</a>
+                <a class="nav-link" id="pbx-tab" data-toggle="tab" href="#pbx" on onclick="loadPbxTable();">PBX</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="pbx-tab" data-toggle="tab" href="#ipPbx">IP-PBX</a>
+                <a class="nav-link" id="pbx-tab" data-toggle="tab" href="#ipPbx" onclick="loadIpPbxTable();">IP-PBX</a>
             </li>
         </ul>
         <div class="tab-content" id="linksContent">
             <div class="tab-pane fade show active" id="core">
-                <div class="table-responsive">
-                    <table class="@Settings.TableClass">
+                <div class="table-responsive mt-3 pb-3">
+                    <table class="@Settings.TableClass" style="width:100% !important" id="coreTable">
                         <thead>
                             <tr>
                                 <td>Name</td>
                                 <td>Exchange</td>
                                 <td>Channels</td>
-                                <td>STM1/E1 equivalence</td>
+                                <td>[STM1,E1,Channels]</td>
                                 <td>Direction</td>
                                 <td>Type</td>
-                                <td>Created On</td>
                                 <td>Remark</td>
                                 <td>Actions</td>
                             </tr>
@@ -62,9 +59,16 @@
                                     <td>@link.GetStm1E1()</td>
                                     <td>@link.Direction</td>
                                     <td>@link.Type</td>
-                                    <td>@link.CreatedOn</td>
                                     <td>@link.Remark</td>
-                                    <td><button onclick="ShowEditLink(@link.Id)" class="btn btn-warning mr-3">Edit</button><button onclick="ShowDeleteLink(@link.Id)" class="btn btn-danger">Delete</button></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" data-html="true" title="User: @link.Username <br/>Created at: @link.CreatedOn.GetPersianDate()<br/>Modified at: @link.ModifiedOn.GetPersianDate()">Details</button>
+                                            <button type="button" onclick="ShowLinkHistory(@link.Id)" class="btn btn-info">History</button>
+                                            <button type="button" onclick="ShowEditLink(@link.Id)" class="btn btn-warning">Edit</button>
+                                            <button type="button" onclick="ShowDeleteLink(@link.Id)" class="btn btn-danger">Delete</button>
+                                        </div>
+
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -72,8 +76,8 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="pbx" role="tabpanel">
-                <div class="table-responsive">
-                    <table class="@Settings.TableClass">
+                <div class="table-responsive mt-3 pb-3">
+                    <table class="@Settings.TableClass" style="width:100%" id="pbxTable">
                         <thead>
                             <tr>
                                 <td>Name</td>
@@ -81,7 +85,7 @@
                                 <td>Direction</td>
                                 <td>Type</td>
                                 <td>Customer</td>
-                                <td>Created On</td>
+                                <td>User</td>
                                 <td>Remark</td>
                                 <td>Actions</td>
                             </tr>
@@ -95,7 +99,7 @@
                                     <td>@link.Direction</td>
                                     <td>@link.Type</td>
                                     <td>@($"{link.End2.Customer.Abb} ({link.End2.Customer.Name})")</td>
-                                    <td>@link.CreatedOn</td>
+                                    <td>@link.Username</td>
                                     <td>@link.Remark</td>
                                     <td><button onclick="ShowEditLink(@link.Id)" class="btn btn-warning mr-3">Edit</button><button onclick="ShowDeleteLink(@link.Id)" class="btn btn-danger">Delete</button></td>
                                 </tr>
@@ -105,8 +109,8 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="ipPbx" role="tabpanel">
-                <div class="table-responsive">
-                    <table class="@Settings.TableClass">
+                <div class="table-responsive mt-3 pb-3">
+                    <table class="@Settings.TableClass" style="width:100%" id="ipPbxTable">
                         <thead>
                             <tr>
                                 <td>Name</td>
@@ -114,7 +118,7 @@
                                 <td>Direction</td>
                                 <td>Type</td>
                                 <td>Customer</td>
-                                <td>Created On</td>
+                                <td>User</td>
                                 <td>Remark</td>
                                 <td>Actions</td>
                             </tr>
@@ -122,16 +126,16 @@
                         <tbody>
                             @foreach (var link in Model.Links.Where(x => x.End2.NetworkType == NeType.IP_PBX))
                             {
-                            <tr>
-                                <td>@link.End2.Name</td>
-                                <td>@link.Channels</td>
-                                <td>@link.Direction</td>
-                                <td>@link.Type</td>
-                                <td>@($"{link.End2.Customer.Abb} ({link.End2.Customer.Name})")</td>
-                                <td>@link.CreatedOn</td>
-                                <td>@link.Remark</td>
-                                <td><button onclick="ShowEditLink(@link.Id)" class="btn btn-warning mr-3">Edit</button><button onclick="ShowDeleteLink(@link.Id)" class="btn btn-danger">Delete</button></td>
-                            </tr>
+                                <tr>
+                                    <td>@link.End2.Name</td>
+                                    <td>@link.Channels</td>
+                                    <td>@link.Direction</td>
+                                    <td>@link.Type</td>
+                                    <td>@($"{link.End2.Customer.Abb} ({link.End2.Customer.Name})")</td>
+                                    <td>@link.Username</td>
+                                    <td>@link.Remark</td>
+                                    <td><button onclick="ShowEditLink(@link.Id)" class="btn btn-warning mr-3">Edit</button><button onclick="ShowDeleteLink(@link.Id)" class="btn btn-danger">Delete</button></td>
+                                </tr>
                             }
                         </tbody>
                     </table>
@@ -165,6 +169,7 @@
                                     <option value="A6">Area 6</option>
                                     <option value="A7">Area 7</option>
                                     <option value="A8">Area 8</option>
+
                                 </select>
                             </div>
                             <div class="form-group">
@@ -199,6 +204,7 @@
                                 <select class="form-control" asp-for="NewLink.Type" onchange="LinkChannelValidation($('#NewLink_Channels').val(),$('#NewLink_Type').val(),'linkChannelValidation')">
                                     <option selected value="@LinkType.ISUP">@LinkType.ISUP</option>
                                     <option value="@LinkType.SIP">@LinkType.SIP</option>
+                                    <option value="@(LinkType.PRA)">@LinkType.PRA</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -207,6 +213,15 @@
                             </div>
                             <div class="form-group">
                                 <p id="stm1Equ"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewLink.Remark"></label>
+                                <textarea class="form-control" asp-for="NewLink.Remark"></textarea>
                             </div>
                         </div>
                     </div>
@@ -257,23 +272,28 @@
             <form asp-action="EditLink" method="post" onsubmit="return LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="EditLink_Type">Type</label>
+                        <label asp-for="EditLink.Type">Type</label>
                         <select class="form-control" asp-for="EditLink.Type" onchange="LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');">
                             <option value="@(LinkType.ISUP)">@LinkType.ISUP</option>
                             <option value="@(LinkType.SIP)">@LinkType.SIP</option>
+                            <option value="@(LinkType.PRA)">@LinkType.PRA</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="EditLink_Channels">Channels</label><div><span id="editLinkChannelValidation"></span></div>
+                        <label asp-for="EditLink.Channels">Channels</label><div><span id="editLinkChannelValidation"></span></div>
                         <input asp-for="EditLink.Channels" class="form-control" onchange="LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');" onkeyup="LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');" />
                     </div>
                     <div class="form-group">
-                        <label for="EditLink_Direction">Direction</label>
+                        <label asp-for="EditLink.Channels">Direction</label>
                         <select class="form-control" asp-for="EditLink.Direction">
                             <option value="@(LinkDirection.Bothway)">@LinkDirection.Bothway</option>
                             <option value="@(LinkDirection.Incoming)">@LinkDirection.Incoming</option>
                             <option value="@(LinkDirection.Outgoing)">@LinkDirection.Outgoing</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EditLink.Remark"></label>
+<textarea asp-for="EditLink.Remark" class="form-control"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -286,26 +306,65 @@
     </div>
 </div>
 
+<div class="modal fade" id="linkHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Link History</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form asp-action="EditLink" method="post" onsubmit="return LinkChannelValidation($('#EditLink_Channels').val(), $('#EditLink_Type').val(), 'editLinkChannelValidation');">
+                <div class="modal-body">
+                    <table class="@Settings.TableClass" id="linkHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Channels</th>
+                                <th>Type</th>
+                                <th>Direction</th>
+                                <th>ModifiedOn</th>
+                                <th>User</th>
+                                <th>Remark</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        })
+
         function ShowDeleteLink(id) {
             $('#deleteLinkId').val(id);
             $('#deleteLink').modal();
         }
 
-
         function ShowEditLink(id) {
             $.ajax({
                 url: '/api/link/' + id,
                 success: function (result) {
+                    $("#EditLink_Remark").val(result.remark);
                     switch (result.type) {
                         case @((int)LinkType.ISUP):
                             $('#EditLink_Type').val('@LinkType.ISUP');
                             break;
                         case @((int)LinkType.SIP):
                             $('#EditLink_Type').val('@LinkType.SIP');
+                            break;
                         case @((int)LinkType.PRA):
-                            $('#EditLink_Type').val('@LinkType.SIP');
+                            $('#EditLink_Type').val('@LinkType.PRA');
+                            break;
                     }
                     switch (result.direction) {
                         case @((int)LinkDirection.Bothway):
@@ -326,9 +385,53 @@
                 error: function () {
                     alert("Cannot get link information.");
                 },
-
                 method: 'GET'
             });
+
+        }
+
+        var isPbxTableLoaded = false;
+        var isIppbxTableLoaded = false;
+
+        function changePbxType() {
+
+            var selectedValue = $("#newPbxNetworkType").val();
+            $("#newPbxType").val(selectedValue);
+        }
+
+        $(document).ready(function () {
+            $('#coreTable').DataTable({
+                pageLength: 50
+            });
+            $('#coreTable').removeAttr("hidden");
+        });
+
+        function loadPbxTable() {
+            if (isPbxTableLoaded)
+                return;
+            $("#pbxTable").dataTable({
+                pageLength: 50
+            });
+            $("#pbxTable").removeAttr("hidden");
+        }
+        function loadIpPbxTable() {
+            if (isIppbxTableLoaded)
+                return;
+            $("#ipPbxTable").dataTable();
+            $("#ipPbxTable").removeAttr("hidden");
+        }
+
+
+        function ShowLinkHistory(id) {
+            $.get({
+                url: "/api/link/history/" + id,
+                success: function (result) {
+                    $("#linkHistoryTable").find("tr:gt(0)").remove();
+                    $("#linkHistoryTable tr:last").after(result);
+                    $("#linkHistoryModal").modal();
+                },
+                error: function () { alert("Cannot get link history.") }
+            })
 
         }
     </script>

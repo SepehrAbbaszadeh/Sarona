@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Sarona.Models;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Sarona.Controllers
@@ -11,12 +13,52 @@ namespace Sarona.Controllers
     {
         private UserManager<AppUser> userManager;
         private SignInManager<AppUser> signInManager;
-        public AccountController(UserManager<AppUser> userMgr,
+        private IPasswordHasher<AppUser> passwordHasher;
+        private IUserValidator<AppUser> userValidator;
+        private IPasswordValidator<AppUser> passwordValidator;
+
+
+        public AccountController(UserManager<AppUser> usrMgr,
+                IUserValidator<AppUser> userValid,
+                IPasswordValidator<AppUser> passValid,
+                IPasswordHasher<AppUser> passwordHash,
                 SignInManager<AppUser> signinMgr)
         {
-            userManager = userMgr;
+            userManager = usrMgr;
+            passwordHasher = passwordHash;
+            userValidator = userValid;
+            passwordValidator = passValid;
             signInManager = signinMgr;
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(string oldPass, string newPass)
+        {
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var validPass = await passwordValidator.ValidateAsync(userManager, user, newPass);
+            if (validPass.Succeeded)
+            {
+                 
+                if (await userManager.CheckPasswordAsync(user,oldPass))
+                {
+                    await userManager.ChangePasswordAsync(user, oldPass, newPass);
+                    return Json(true);
+                }
+                return Json("Wrong password!!!");
+            }
+            else
+            {
+                string error = "";
+                foreach (var e in validPass.Errors)
+                {
+                    error = error + e.Description + Environment.NewLine;
+                }
+                return Json(error);
+                
+            }
+        }
+
 
         [Authorize]
         public async Task<IActionResult> Logout()
@@ -69,7 +111,11 @@ namespace Sarona.Controllers
             }
             return View(details);
         }
+
         
+        
+
+
 
 
     }

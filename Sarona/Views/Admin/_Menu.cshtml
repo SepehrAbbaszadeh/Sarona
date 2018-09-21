@@ -1,0 +1,9 @@
+﻿
+@{
+    var selectedAction = ViewContext.RouteData.Values["action"].ToString().ToLower();
+}
+
+<div class="list-group">
+    <a class="list-group-item list-group-item-action @(selectedAction == "users" || selectedAction == "edituser"?"active":"")" asp-action="Users">Users</a>
+    <a class="list-group-item list-group-item-action @(selectedAction == "roles" ? "active":"")" asp-action="Roles">Roles</a>
+</div>

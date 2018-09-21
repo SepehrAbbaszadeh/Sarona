@@ -3,33 +3,44 @@
     TempData["Title"] = "Customers";
 }
 
-<h3>Customer Management</h3>
-<div asp-validation-summary="All" class="text-danger"></div>
-@if (TempData.Keys.Contains("message"))
-{
-    <div class="alert alert-success">
-        @TempData["message"]
+<div class="row">
+    <div class="@Settings.Col3">
+
+    </div>
+    <div class="@Settings.Col9">
+        <h3>Customer Management</h3>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        @if (TempData.Keys.Contains("message"))
+        {
+            <div class="alert alert-success">
+                @TempData["message"]
+            </div>
+
+        }
+        <button class="btn btn-primary my-3" data-toggle="modal" data-target="#addCustomer">Add Customer</button>
+        <table class="@Settings.TableClass" id="customersTable">
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Abbreviation</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model.Customers)
+                {
+                    <tr>
+                        <td><a asp-action="Customers" asp-route-Abb="@customer.Abb">@customer.Name</a></td>
+                        <td>@customer.Abb</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
     </div>
 
-}
-<button class="btn btn-primary my-3" data-toggle="modal" data-target="#addCustomer">Add Customer</button>
-<table class="table table-bordered table-striped table-hover clickable-row table-sm table-responsive-sm">
-    <thead>
-        <tr>
-            <td>Name</td>
-            <td>Abbreviation</td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var customer in Model.Customers)
-        {
-            <tr>
-                <td><a asp-action="Customers" asp-route-Abb="@customer.Abb">@customer.Name</a></td>
-                <td>@customer.Abb</td>
-            </tr>
-        }
-    </tbody>
-</table>
+</div>
+
+
 
 <div class="modal fade" id="addCustomer" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -60,3 +71,9 @@
         </div>
     </div>
 </div>
+
+@section Scripts{ 
+    <script>
+        $('#customersTable').dataTable();
+    </script>
+}

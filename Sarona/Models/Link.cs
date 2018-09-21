@@ -19,6 +19,19 @@ namespace Sarona.Models
         Outgoing,
         Bothway
     }
+
+    public class LinkHistory
+    {
+        public long Id { get; set; }
+        public LinkType Type { get; set; }
+        public DateTime ModifiedOn { get; set; }
+        public string Username { get; set; }
+        public string Remark { get; set; }
+        public int Channels { get; set; }
+        public long LinkId { get; set; }
+        public LinkDirection Direction { get; set; }
+
+    }
     
     public class Link:IValidatableObject
     {
@@ -42,12 +55,14 @@ namespace Sarona.Models
         public long? OtherLinkId { get; set; }
         public Link OtherLink { get; set; }
 
+        public IEnumerable<LinkHistory> Histories { get; set; }
+
         public string GetStm1E1()
         {
             var stm1 = Math.Floor((double)Channels / 1953);
             var e1 = Math.Floor((Channels - stm1 * 1953) / 31);
             var channels = Channels - stm1 * 1953 - e1 * 31;
-            return $"STM1={stm1} E1={e1} Channels={channels}";
+            return $"[{stm1},{e1},{channels}]";
         }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

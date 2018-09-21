@@ -15,6 +15,7 @@
     <title>@ViewData["Title"] - Sarona</title>
     <link rel="icon" type="image/x-icon" href="~/img/tci_logo_black_icon.ico">
     <link href="~/css/site.min.css" rel="stylesheet" asp-append-version="true" />
+    <link asp-append-version="true" rel="stylesheet" href="~/css/js-persian-cal.css" />
     @await RenderSectionAsync("Styles", false)
 </head>
 <body>
@@ -27,7 +28,7 @@
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                     <li class="nav-item @(selectedController=="home"?"active":"")">
-                        <a class="nav-link" href="#">Home</a>
+                        <a class="nav-link" asp-action="index" asp-controller="home">Home</a>
                     </li>
                     <li class="nav-item @(selectedController=="network"?"active":"")">
                         <a class="nav-link" asp-controller="Network" asp-action="District">Network</a>
@@ -36,12 +37,12 @@
                         <a class="nav-link" asp-action="Customers" asp-controller="Crm">CRM</a>
                     </li>
                     <li class="nav-item @(selectedController=="numbering"?"active":"")">
-                        <a class="nav-link" href="#">Numbering</a>
+                        <a class="nav-link" asp-action="Pool" asp-controller="Numbering">Numbering</a>
                     </li>
-                    <li class="nav-item @(selectedController=="reports"?"active":"")">
-                        <a class="nav-link" asp-action="Shenasname" asp-controller="Reports">Reports</a>
+                    <li class="nav-item @(selectedController=="report"?"active":"")">
+                        <a class="nav-link" asp-action="Shenasname" asp-controller="Report">Reports</a>
                     </li>
-                    @if (Context.User.IsInRole("admin"))
+                    @if (Context.User.IsInRole(Settings.AdminsRole))
                     {
                         <li class="nav-item @(selectedController=="admin"?"active":"")">
                             <a class="nav-link" asp-action="Users" asp-controller="Admin">Admin</a>
@@ -52,7 +53,7 @@
                             @Context.User.Identity.Name
                         </a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Change Password</a>
+                            <a class="dropdown-item" href="#" onclick="$('#changePasswordModal').modal()">Change Password</a>
                             <a class="dropdown-item" asp-action="Logout" asp-controller="Account">Logout</a>
                         </div>
                     </li>
@@ -73,6 +74,37 @@
     </footer>
     <script src="~/js/main.min.js" asp-append-version="true"></script>
     <script src="~/js/Site.js" asp-append-version="true"></script>
+    <script asp-append-version="true" src="~/js/js-persian-cal.js"></script>
     @await RenderSectionAsync("Scripts", false)
 </body>
 </html>
+
+
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-danger" id="passwordErrors"></div>
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input class="form-control" type="password" required id="currentPassword" name="currentPassword" />
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input class="form-control" type="password" required id="newPassword" name="newPassword" />
+                </div>
+            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning" onclick="ChangePassword();">Change</button>
+                </div>
+        </div>
+    </div>
+</div>
+

@@ -18,7 +18,7 @@ namespace Sarona.Infrastructure
         {
             ws.HeaderFooter.OddFooter.RightAlignedText = $"User: {username}";
             ws.HeaderFooter.OddHeader.CenteredText = $"{ExcelHeaderFooter.SheetName}";
-            ws.HeaderFooter.OddFooter.LeftAlignedText = $"Print Date: {DateTime.Now}";
+            ws.HeaderFooter.OddFooter.LeftAlignedText = $"Report generated at: {DateTime.Now}";
             ws.HeaderFooter.OddFooter.CenteredText = $"{ExcelHeaderFooter.PageNumber}/{ExcelHeaderFooter.NumberOfPages}";
         }
 
@@ -49,7 +49,7 @@ namespace Sarona.Infrastructure
             ws.Cells[row, col++].Value = "Name";
             ws.Cells[row, col++].Value = "Exchange";
             ws.Cells[row, col++].Value = "Channels";
-            ws.Cells[row, col++].Value = "STM1/E1 equivalence";
+            ws.Cells[row, col++].Value = "[STM1,E1,Channel]";
             ws.Cells[row, col++].Value = "Direction";
             if(type == NeType.IP_PBX || type == NeType.PBX)
             {

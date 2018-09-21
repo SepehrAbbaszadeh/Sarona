@@ -12,14 +12,17 @@
       "wwwroot/js/popper.js",
       "wwwroot/js/bootstrap.min.js",
       "wwwroot/js/jquery.validate.js",
-      "wwwroot/js/jquery.validate.unobtrusive.js"
+      "wwwroot/js/jquery.validate.unobtrusive.js",
+      "wwwroot/js/datatables.min.js"
+
     ]
   },
   {
     "outputFileName": "wwwroot/css/site.css",
     "inputFiles": [
       "wwwroot/css/main.css",
-      "wwwroot/css/fa.css"
+      "wwwroot/css/fa.css",
+      "wwwroot/css/datatables.min.css"
     ]
   }
 ]

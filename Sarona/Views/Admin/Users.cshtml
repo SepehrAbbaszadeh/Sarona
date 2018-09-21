@@ -1,29 +1,50 @@
 ﻿@model IEnumerable<AppUser>
-
+@{ 
+    ViewData["Title"] = "Users";
+}
 <div class="row">
     <div class="@Settings.Col3">
-
+        <partial name="_Menu" />
     </div>
     <div class="@Settings.Col9">
         <h4>User Accounts</h4>
-        <table class="table table-sm table-bordered">
-            <tr><th>ID</th><th>Name</th><th>Email</th></tr>
-            @if (Model.Count() == 0)
-            {
-                <tr><td colspan="3" class="text-center">No User Accounts</td></tr>
-            }
-            else
-            {
-                foreach (AppUser user in Model)
-                {
-                    <tr>
-                        <td>@user.Id</td>
-                        <td>@user.UserName</td>
-                        <td>@user.Email</td>
-                    </tr>
-                }
-            }
-        </table>
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+        <form class="form-inline" asp-action="Users">
+            <label for="name" class="mr-sm-2">Username:</label>
+            <input class="form-control mb-2 mr-sm-2" name="name">
+            <button type="submit" class="btn btn-primary mb-2">Search</button>
+        </form>
+        <div class="table-responsive">
+            <table class="@Settings.TableClass">
+                <thead>
+                    <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count() == 0)
+                    {
+                        <tr><td colspan="3" class="text-center">No User Accounts</td></tr>
+                    }
+                    else
+                    {
+                        foreach (AppUser user in Model)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td>@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td>
+                                    <form asp-action="DeleteUser" asp-route-id="@user.Id" method="post">
+                                        <a class="btn btn-sm btn-warning" asp-action="EditUser" asp-route-id="@user.Id">Edit</a>
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
         <a class="btn btn-primary" asp-action="CreateUser">Create</a>
     </div>
 </div>

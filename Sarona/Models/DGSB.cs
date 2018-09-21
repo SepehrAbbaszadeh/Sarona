@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Sarona.Models
 {
-    public enum DGSB
+    public enum DGSB:byte
     {
         Diamond,
         Gold,

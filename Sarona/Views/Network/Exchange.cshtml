@@ -63,17 +63,17 @@
         <nav>
             <div class="nav nav-tabs" id="nav-tab">
                 <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-core">Core</a>
-                <a class="nav-item nav-link" id="nav-remotes-tab" data-toggle="tab" href="#nav-remotes">Remotes</a>
-                <a class="nav-item nav-link" id="nav-accesses-tab" data-toggle="tab" href="#nav-accesses">Access</a>
-                <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-pbx">PBX</a>
-                <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-ip-pbx">IP-PBX</a>
+                <a class="nav-item nav-link" id="nav-remotes-tab" data-toggle="tab" href="#nav-remotes" onclick="loadRemoteTable();">Remotes</a>
+                <a class="nav-item nav-link" id="nav-accesses-tab" data-toggle="tab" href="#nav-accesses" onclick="loadAccessTable()">Access</a>
+                <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-pbx" onclick="loadPbxTable()">PBX</a>
+                <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-ip-pbx" onclick="loadIpPbxTable();">IP-PBX</a>
             </div>
         </nav>
 
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-core">
-                <div class="table-responsive">
-                    <table class="@Settings.TableClickableClass">
+                <div class="table-responsive mt-3 pb-3">
+                    <table class="@Settings.TableClickableClass" hidden style="width:100% !important" id="coreTable">
                         <thead>
                             <tr>
                                 <td>Name</td>
@@ -105,8 +105,8 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="nav-remotes">
-                <div class="table-responsive">
-                    <table class="@Settings.TableClickableClass">
+                <div class="table-responsive mt-3 pb-3">
+                    <table class="@Settings.TableClickableClass" style="width:100% !important" id="remoteTable">
                         <thead>
                             <tr>
                                 <td>Name</td>
@@ -138,84 +138,89 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="nav-accesses">
-                <table class="@Settings.TableClickableClass">
-                    <thead>
-                        <tr>
-                            <td>Name</td>
-                            <td>Type</td>
-                            <td>Model</td>
-                            <td>Manufacturer</td>
-                            <td>Installed Capacity</td>
-                            <td>Used Capacity</td>
-                            <td>Parent</td>
-                            <td>Remark</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var access in Model.Accesses)
-                        {
+                <div class="table-responsive mt-3 pb-3">
+                    <table class="@Settings.TableClickableClass" style="width:100% !important" id="accessTable">
+                        <thead>
                             <tr>
-                                <td>@access.Name</td>
-                                <td>@access.Type</td>
-                                <td>@access.Model</td>
-                                <td>@access.Manufacturer</td>
-                                <td>@access.InstalledCapacity</td>
-                                <td>@access.UsedCapacity</td>
-                                <td>@access.Parent.Name</td>
-                                <td>@access.Remark</td>
+                                <td>Name</td>
+                                <td>Type</td>
+                                <td>Model</td>
+                                <td>Manufacturer</td>
+                                <td>Installed Capacity</td>
+                                <td>Used Capacity</td>
+                                <td>Parent</td>
+                                <td>Remark</td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var access in Model.Accesses)
+                            {
+                                <tr>
+                                    <td>@access.Name</td>
+                                    <td>@access.Type</td>
+                                    <td>@access.Model</td>
+                                    <td>@access.Manufacturer</td>
+                                    <td>@access.InstalledCapacity</td>
+                                    <td>@access.UsedCapacity</td>
+                                    <td>@access.Parent.Name</td>
+                                    <td>@access.Remark</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="tab-pane fade" id="nav-pbx">
-                <table class="@Settings.TableClickableClass">
-                    <thead>
-                        <tr>
-                            <td>Name</td>
-                            <td>Type</td>
-                            <td>Customer Abbreviation</td>
-                            <td>Customer Name</td>
-                            <td>Remark</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var pbx in Model.Pbxs)
-                        {
+                <div class="table-responsive mt-3 pb-3">
+                    <table class="@Settings.TableClickableClass" style="width:100% !important" id="pbxTable">
+                        <thead>
                             <tr>
-                                <td>@pbx.Name</td>
-                                <td>@pbx.Type</td>
-                                <td>@pbx.Customer.Abb</td>
-                                <td>@pbx.Customer.Name</td>
-                                <td>@pbx.Remark</td>
+                                <td>Name</td>
+                                <td>Type</td>
+                                <td>Customer Abbreviation</td>
+                                <td>Customer Name</td>
+                                <td>Remark</td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var pbx in Model.Pbxs)
+                            {
+                                <tr>
+                                    <td>@pbx.Name</td>
+                                    <td>@pbx.Type</td>
+                                    <td>@pbx.Customer.Abb</td>
+                                    <td>@pbx.Customer.Name</td>
+                                    <td>@pbx.Remark</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="tab-pane fade" id="nav-ip-pbx">
-                <table class="@Settings.TableClickableClass">
-                    <thead>
-                        <tr>
-                            <td>Name</td>
-                            <td>Type</td>
-                            <td>Customer Abbreviation</td>
-                            <td>Customer Name</td>
-                            <td>Remark</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var ipPbx in Model.IpPbxs)
-                        {
+                <div class="table-responsive mt-3 pb-3">
+                    <table class="@Settings.TableClickableClass" style="width:100% !important" id="ipPbxTable">
+                        <thead>
                             <tr>
-                                <td>@ipPbx.Name</td>
-                                <td>@ipPbx.Customer.Abb</td>
-                                <td>@ipPbx.Customer.Name</td>
-                                <td>@ipPbx.Remark</td>
+                                <td>Name</td>
+                                <td>Customer Abbreviation</td>
+                                <td>Customer Name</td>
+                                <td>Remark</td>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var ipPbx in Model.IpPbxs)
+                            {
+                                <tr>
+                                    <td>@ipPbx.Name</td>
+                                    <td>@ipPbx.Customer.Abb</td>
+                                    <td>@ipPbx.Customer.Name</td>
+                                    <td>@ipPbx.Remark</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -250,7 +255,7 @@
                             <div class="form-group">
                                 <label asp-for="NewNE.Owner"></label>
                                 <select asp-for="NewNE.Owner" class="form-control">
-                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.CoreOwner))
+                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Owner))
                                     {
                                         <option value="@item.Name">@item.Name</option>
                                     }
@@ -576,6 +581,24 @@
                             }
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label asp-for="SelectedExchange.Providence"></label>
+                        <select asp-for="SelectedExchange.Providence" class="form-control">
+                            @foreach (var providence in Model.Miscs.Where(x => x.Type == MiscType.Providence))
+                            {
+                                @if (providence.Name == Model.SelectedExchange.Providence)
+                                {
+                                    <option class="form-control" selected value="@providence.Name">@providence.Name</option>
+                                }
+                                else
+                                {
+                                    <option class="form-control" value="@providence.Name">@providence.Name</option>
+                                }
+
+                            }
+                        </select>
+                    </div>
+
                     <input type="hidden" asp-for="SelectedExchange.Id" />
                     <input type="hidden" asp-for="SelectedExchange.CreatedOn" />
                 </div>
@@ -632,10 +655,48 @@
 
 @section Scripts{
     <script>
+        var isRemoteTableLoaded = false;
+        var isAccessTableLoaded = false;
+        var isPbxTableLoaded = false;
+        var isIppbxTableLoaded = false;
+
         function changePbxType() {
 
             var selectedValue = $("#newPbxNetworkType").val();
             $("#newPbxType").val(selectedValue);
         }
+
+        $(document).ready(function () {
+            $('#coreTable').DataTable({
+                pageLength: 25
+            });
+            $('#coreTable').removeAttr("hidden");
+        });
+
+        function loadRemoteTable() {
+            if (isRemoteTableLoaded)
+                return;
+            $("#remoteTable").dataTable();
+            $("#remoteTable").removeAttr("hidden");
+        }
+        function loadAccessTable() {
+            if (isAccessTableLoaded)
+                return;
+            $("#accessTable").dataTable();
+            $("#accessTable").removeAttr("hidden");
+        }
+        function loadPbxTable() {
+            if (isPbxTableLoaded)
+                return;
+            $("#pbxTable").dataTable();
+            $("#pbxTable").removeAttr("hidden");
+        }
+        function loadIpPbxTable() {
+            if (isIppbxTableLoaded)
+                return;
+            $("#ipPbxTable").dataTable();
+            $("#ipPbxTable").removeAttr("hidden");
+        }
+
     </script>
 }

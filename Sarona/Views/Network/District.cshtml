@@ -1,6 +1,7 @@
 ﻿@model DistrictViewModel
 @{
-    ViewData["Title"] = "Area " + (int)Model.SelectedDistrict;
+    ViewData["Title"] = Model.SelectedDistrict;
+    int count = 0;
 }
 
 <div class="row">
@@ -13,6 +14,7 @@
             <a asp-action="District" asp-route-district="A6" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A6 ? "active":"")">Area 6</a>
             <a asp-action="District" asp-route-district="A7" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A7 ? "active":"")">Area 7</a>
             <a asp-action="District" asp-route-district="A8" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A8 ? "active":"")">Area 8</a>
+            @*<a asp-action="District" asp-route-district="ON" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.ON ? "active":"")">Other Networks</a>*@
         </div>
     </div>
     <div class="@Settings.Col9">
@@ -25,31 +27,49 @@
             </div>
 
         }
-
         <button class="btn btn-primary my-3" data-toggle="modal" data-target="#addExchange">Add Exchange</button>
-        <table class="@Settings.TableClickableClass">
-            <thead>
-                <tr>
-                    <th>Abbreviation</th>
-                    <th>Name</th>
-                    <th>Created at</th>
-                    <th>Modified at</th>
-                    <th>User</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var exch in Model.Exchanges)
-                {
-                    <tr>
-                        <td><a asp-action="Exchange" asp-route-exchange="@exch.Abb" asp-route-district="@Model.SelectedDistrict">@exch.Abb</a></td>
-                        <td>@exch.Name</td>
-                        <td>@exch.CreatedOn</td>
-                        <td>@exch.ModifiedOn</td>
-                        <td>@exch.Username</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+
+        <ul class="nav nav-tabs" id="providences">
+            @foreach (var providence in Model.Exchanges.Select(x => x.Providence).Distinct().OrderBy(x => x))
+            {
+                <li class="nav-item">
+                    <a class="nav-link @(providence == "تهران"?"active":"")" id="@(count)-tab" data-toggle="tab" href="#@(count++)">@providence</a>
+                </li>
+            }
+        </ul>
+        @{ count = 0;}
+        <div class="tab-content" id="providencesContent">
+            @foreach (var providence in Model.Exchanges)
+            {
+                <div class="tab-pane fade show @(providence.Providence == "تهران"?"active":"")" id="@(count)">
+                    <div class="table-responsive mt-3 pb-3">
+                        <table class="@Settings.TableClickableClass" hidden id="@(count++)-Table">
+                            <thead>
+                                <tr>
+                                    <th>Abbreviation</th>
+                                    <th>Name</th>
+                                    <th>Created at</th>
+                                    <th>Modified at</th>
+                                    <th>User</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var exch in providence.Exchanges)
+                                {
+                                    <tr>
+                                        <td><a asp-action="Exchange" asp-route-exchange="@exch.Abb" asp-route-district="@Model.SelectedDistrict">@exch.Abb</a></td>
+                                        <td>@exch.Name</td>
+                                        <td>@exch.CreatedOn.GetPersianDate()</td>
+                                        <td>@exch.ModifiedOn.GetPersianDate()</td>
+                                        <td>@exch.Username</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </div>
 
@@ -70,7 +90,24 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="NewExchange.Abb"></label><div><span class="text-danger" id="abbValidation"></span><span asp-validation-for="NewExchange.Abb" class="text-danger"></span></div>
-                        <input asp-for="NewExchange.Abb" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')"/>
+                        <input asp-for="NewExchange.Abb" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="NewExchange.Providence"></label><div><span class="text-danger" id="abbValidation"></span><span asp-validation-for="NewExchange.Providence" class="text-danger"></span></div>
+                        <select class="form-control" asp-for="NewExchange.Providence">
+                            @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.Providence))
+                            {
+                                if (item.Name == "تهران")
+                                {
+                                    <option selected value="@item.Name">@item.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Name">@item.Name</option>
+                                }
+
+                            }
+                        </select>
                     </div>
                     <input type="hidden" asp-for="NewExchange.Area" value="@Model.SelectedDistrict" />
                 </div>
@@ -83,3 +120,19 @@
     </div>
 </div>
 
+@{ count = 0;}
+
+@section Scripts{
+    <script>
+                $(document).ready(function () {
+                    @foreach(var providence in Model.Exchanges.Select(x=>x.Providence))
+                    {
+                        @:$('#@count-Table').DataTable({
+                    @:pageLength: 50
+                    @:});
+                    @:$("#@(count++)-Table").removeAttr("hidden");
+                    }
+
+                });
+    </script>
+}

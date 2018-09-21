@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sarona.Models;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace Sarona
 {
@@ -12,10 +15,13 @@ namespace Sarona
     public class Startup
     {
         public Startup(IConfiguration config) => Configuration = config;
+
         public IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
             string conString = Configuration["ConnectionStrings:DefaultConnection"];
+
+
             services.AddDbContext<SaronaContext>(options => options.UseSqlServer(conString));
             services.AddTransient<SaronaRepository>();
 
@@ -31,8 +37,28 @@ namespace Sarona
             }).AddEntityFrameworkStores<AppIdentityDbContext>()
             .AddDefaultTokenProviders();
 
+            services.Configure<RequestLocalizationOptions>(
+            opts =>
+            {
+                var supportedCultures = new List<CultureInfo>
+                {
+
+                        new CultureInfo("en-GB"),
+                        new CultureInfo("ar")
+                };
 
 
+                opts.DefaultRequestCulture = new RequestCulture("en-GB");
+                // Formatting numbers, dates, etc.
+                opts.SupportedCultures = supportedCultures;
+                // UI strings that we have localized.
+                opts.SupportedUICultures = supportedCultures;
+                opts.DefaultRequestCulture = new RequestCulture(culture: "en-GB", uiCulture: "en-GB");
+
+
+            });
+
+            services.AddTransient<MigrationsManager>();
 
             services.AddMvc();
         }
@@ -47,10 +73,11 @@ namespace Sarona
                 app.UseDatabaseErrorPage();
                 app.UseDeveloperExceptionPage();
                 app.UseStatusCodePages();
+                //app.UseExceptionHandler();
             }
             else
             {
-                app.UseExceptionHandler();
+                //app.UseExceptionHandler();
             }
 
             app.UseStaticFiles();
@@ -72,7 +99,7 @@ namespace Sarona
                     template: "Network/{district:length(2)}",
                     defaults: new { controller = "Network", action = "District", district = Area.A2 });
 
-                rt.MapRoute(null, "{controller=Home}/{action=Index}");
+                rt.MapRoute(null, "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

@@ -2,7 +2,7 @@
 
 <div class="row">
     <div class="@Settings.Col3">
-
+        <partial name="_Menu" />
     </div>
     <div class="@Settings.Col9">
         <h4>Create User</h4>
@@ -16,7 +16,13 @@
                 <label asp-for="Password"></label><div><span asp-validation-for="Password" class="text-danger"></span></div>
                 <input asp-for="Password" class="form-control" />
             </div>
+            <div class="form-group">
+                <label asp-for="Role"></label><div><span asp-validation-for="Role" class="text-danger"></span></div>
+                <select asp-for="Role" asp-items="ViewBag.Roles">
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Create</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <a asp-action="Users" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
+</div>

@@ -14,7 +14,11 @@ namespace Sarona.Models
         AccessModel=4,
         RemoteType=5,
         RemoteModel=6,
-        CoreOwner=7
+        Owner=7,
+        Providence = 8,
+        ChargingCase = 9,
+        NumberType = 10,
+        RoutingType = 11
     }
     public class Misc
     {

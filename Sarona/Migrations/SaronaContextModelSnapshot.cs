@@ -90,6 +90,33 @@ namespace Sarona.Migrations
                     b.ToTable("Links");
                 });
 
+            modelBuilder.Entity("Sarona.Models.LinkHistory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Channels");
+
+                    b.Property<int>("Direction");
+
+                    b.Property<long>("LinkId");
+
+                    b.Property<DateTime>("ModifiedOn");
+
+                    b.Property<string>("Remark");
+
+                    b.Property<int>("Type");
+
+                    b.Property<string>("Username");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkId");
+
+                    b.ToTable("LinkHistories");
+                });
+
             modelBuilder.Entity("Sarona.Models.Misc", b =>
                 {
                     b.Property<int>("Id")
@@ -166,31 +193,45 @@ namespace Sarona.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ChargingCase");
+                    b.Property<string>("ChargingCase")
+                        .IsRequired();
 
                     b.Property<DateTime>("CreatedOn");
 
-                    b.Property<int>("Dgsb");
+                    b.Property<byte>("Dgsb");
 
                     b.Property<DateTime>("ExpireDate");
 
-                    b.Property<long>("From");
+                    b.Property<bool>("IsFloat");
 
                     b.Property<byte>("Max");
 
                     b.Property<byte>("Min");
 
-                    b.Property<string>("NumberType");
+                    b.Property<DateTime>("ModifiedOn");
+
+                    b.Property<string>("NumberType")
+                        .IsRequired();
+
+                    b.Property<string>("Owner")
+                        .IsRequired();
+
+                    b.Property<string>("Prefix")
+                        .IsRequired();
 
                     b.Property<string>("Remark");
 
-                    b.Property<string>("RoutingType");
+                    b.Property<string>("RoutingType")
+                        .IsRequired();
 
-                    b.Property<long>("To");
+                    b.Property<int>("Status");
 
-                    b.Property<string>("UserName");
+                    b.Property<string>("Username");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Prefix")
+                        .IsUnique();
 
                     b.ToTable("NumberingPools");
                 });
@@ -224,6 +265,8 @@ namespace Sarona.Migrations
 
                     b.Property<int>("Area");
 
+                    b.Property<string>("Providence");
+
                     b.ToTable("Exchange");
 
                     b.HasDiscriminator().HasValue("Exchange");
@@ -245,6 +288,14 @@ namespace Sarona.Migrations
                         .WithMany()
                         .HasForeignKey("OtherLinkId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Sarona.Models.LinkHistory", b =>
+                {
+                    b.HasOne("Sarona.Models.Link")
+                        .WithMany("Histories")
+                        .HasForeignKey("LinkId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Sarona.Models.NetworkElement", b =>

@@ -13,12 +13,12 @@ using Microsoft.AspNetCore.Authorization;
 namespace Sarona.Controllers
 {
     [Authorize]
-    public class ReportsController:Controller
+    public class ReportController:Controller
     {
         SaronaRepository repository;
         private IHostingEnvironment hostingEnvironment;
 
-        public ReportsController(SaronaRepository repo, IHostingEnvironment env)
+        public ReportController(SaronaRepository repo, IHostingEnvironment env)
         {
             repository = repo;
             hostingEnvironment = env;
@@ -34,7 +34,7 @@ namespace Sarona.Controllers
         {
             string tempFolder = Path.GetTempPath();
             var q = await repository.Exchanges.Where(x => x.Area == area).Include(x => x.NetworkElements).ThenInclude(x => x.Parent).ToListAsync();
-            var fileName = $"{q.First().Area} (Shenasname) {Settings.GetDateTimeNow()}.xlsx";
+            var fileName = $"{q.First().Area} (Shenasname) {Settings.GetDateTimeNowFile()}.xlsx";
             string path = Path.Combine(tempFolder, fileName);
             Infrastructure.ReportGenerator report = new Infrastructure.ReportGenerator(User.Identity.Name);
             report.ShenasnameByArea(q, path);
@@ -50,7 +50,7 @@ namespace Sarona.Controllers
         public async Task<IActionResult> Links(string name)
         {
             string tempFolder = Path.GetTempPath();
-            var fileName = $"{name} (Links) {Settings.GetDateTimeNow()}.xlsx";
+            var fileName = $"{name} (Links) {Settings.GetDateTimeNowFile()}.xlsx";
 
             string path = Path.Combine(tempFolder, fileName);
             Infrastructure.ReportGenerator report = new Infrastructure.ReportGenerator(User.Identity.Name);
