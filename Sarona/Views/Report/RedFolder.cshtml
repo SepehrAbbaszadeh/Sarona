@@ -1,0 +1,106 @@
+﻿@model RedFolderViewModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Red Folder";
+}
+
+
+    <h3>Red Folder</h3>
+    <form method="get" asp-action="RedFolder">
+        <div class="form-group">
+            <label for="abb">Subscriber Abbreviation</label>
+            <input class="form-control" style="width:300px" name="abb" value="@Model.Abb" />
+        </div>
+        <div class="form-group">
+            <label for="code">Subscriber Code</label>
+            <input class="form-control" style="width:300px" name="code" value="@Model.Code" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Mode">Query Mode</label>
+            <select class="form-control" asp-for="Mode" style="width:300px" asp-items="new SelectList(Enum.GetValues(typeof(QueryMode)),Enum.GetNames(typeof(QueryMode)))"></select>
+                    </div>
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+    <form id="getExcel" asp-action="RedFolderExcel" asp-controller="Report" method="get">
+        <i style="cursor:pointer" onclick="$('#getExcel').submit()" class="fas fa-file-excel fa-2x float-right"></i>
+        <input type="hidden" name="abb" value="@Model.Abb" />
+        <input type="hidden" name="code" value="@Model.Code" />
+        <input type="hidden" name="mode" value="@Model.Mode" />
+    </form>
+    <div class="d-flex justify-content-center mb-3">
+        <span class="mr-2">Page </span>
+        <select class="mr-2" onchange="LoadPage(this);">
+            @for (int i = 1; i < Model.PagingInfo.TotalPages + 1; i++)
+            {
+                if (i == Model.PagingInfo.CurrentPage)
+                {
+                    @:<option selected value="@i">@i</option>
+                }
+                else
+                {
+                    @:<option value="@i">@i</option>
+                }
+            }
+        </select>
+        <span> of @Model.PagingInfo.TotalPages pages.</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="@Settings.TableClass">
+            <thead>
+                <tr>
+                    <th>Subscriber Abbreviation</th>
+                    <th>Subscriber Code</th>
+                    <th>Switch Abbreviation</th>
+                    <th>Switch Code</th>
+                    <th>Link Type</th>
+                    <th>Channels</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in Model.Records)
+                {
+                    <tr>
+                        <td>@record.SubscriberAbb</td>
+                        <td>@record.SubscriberCode</td>
+                        <td>@record.SwitchAbb</td>
+                        <td>@record.SwitchCode</td>
+                        <td>@record.LinkType</td>
+                        <td>@record.Channels</td>
+                        <td>@record.Remark</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-center mb-3">
+        <span class="mr-2">Page </span>
+        <select class="mr-2" onchange="LoadPage(this);">
+            @for (int i = 1; i < Model.PagingInfo.TotalPages + 1; i++)
+            {
+                if (i == Model.PagingInfo.CurrentPage)
+                {
+                    @:<option selected value="@i">@i</option>
+                }
+                else
+                {
+                    @:<option value="@i">@i</option>
+                }
+            }
+        </select>
+        <span> of @Model.PagingInfo.TotalPages pages.</span>
+    </div>
+
+@section Scripts{
+    <script>
+        function LoadPage(select) {
+            var selectedPage = $(select).find(":selected").text();
+            location.assign("/report/redfolder?abb=@Model.Abb&code=@Model.Code&page="+selectedPage)
+        }
+    </script>
+}

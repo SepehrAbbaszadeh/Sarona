@@ -1,0 +1,214 @@
+﻿@model Sarona.ViewModels.NumberingSearchViewModel
+
+@{
+    ViewData["Title"] = "Numbering";
+}
+
+<h2>Numbering</h2>
+
+
+<form method="get" id="searchForm" class="my-3" asp-action="numbering">
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="Search.Prefix"></label>
+                <input class="form-control" asp-for="Search.Prefix" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Search.PrefixMode"></label>
+                <select class="form-control" asp-for="Search.PrefixMode" asp-items="Html.GetEnumSelectList<QueryMode>()"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Search.Min"></label>
+                <input class="form-control" asp-for="Search.Min" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Search.Max"></label>
+                <input class="form-control" asp-for="Search.Max" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Search.SubscriberName"></label>
+                <input class="form-control" asp-for="Search.SubscriberName" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Search.Abb"></label>
+                <input class="form-control" asp-for="Search.Abb" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="Search.Areas"></label>
+                <select multiple class="form-control" asp-for="Search.Areas" asp-items="@Html.GetEnumSelectList<Area>()"></select>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="Search.NumberTypes"></label>
+                <select multiple class="form-control" asp-for="Search.NumberTypes" asp-items="new SelectList(Model.Miscs.Where(x=>x.Type == MiscType.NumberType).Select(x=>x.Name),Model.Miscs.Where(x=>x.Type == MiscType.NumberType).Select(x=>x.Name)) "></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Search.RondTypes"></label>
+                <select multiple class="form-control" asp-for="Search.RondTypes" asp-items="Html.GetEnumSelectList<GSB>() "></select>
+            </div>
+
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="Search.LinkTypes"></label>
+                <select multiple class="form-control" asp-for="Search.LinkTypes" asp-items="@Html.GetEnumSelectList<LinkType>()"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Search.ChargingCases"></label>
+                <select multiple class="form-control" asp-for="Search.ChargingCases" asp-items=" new SelectList(Model.Miscs.Where(x=>x.Type == MiscType.ChargingCase).Select(x=>x.Name),Model.Miscs.Where(x=>x.Type == MiscType.ChargingCase).Select(x=>x.Name)) "></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Search.Directions"></label>
+                <select multiple class="form-control" asp-for="Search.Directions" asp-items="new SelectList(Enum.GetNames(typeof(LinkDirection)),Enum.GetValues(typeof(LinkDirection))) "></select>
+            </div>
+            
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="Search.Statuses"></label>
+                <select multiple class="form-control" asp-for="Search.Statuses" asp-items="new SelectList(Enum.GetNames(typeof(NumberingStatus)),Enum.GetValues(typeof(NumberingStatus))) "></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Search.Owners"></label>
+                <select multiple class="form-control" asp-for="Search.Owners" asp-items="new SelectList(Model.Miscs.Where(x=>x.Type == MiscType.Owner).Select(x=>x.Name),Model.Miscs.Where(x=>x.Type == MiscType.Owner).Select(x=>x.Name)) "></select>
+            </div>
+        </div>
+
+    </div>
+    <input type="hidden" name="page" id="page" value="1">
+    <button type="submit" class="btn btn-primary">Search</button>
+    <a class="btn btn-secondary" asp-action="numbering" asp-controller="report">Clear</a>
+</form>
+<form id="excelForm" asp-action="NumberingExcel" method="get">
+    <i style="cursor:pointer" onclick="$('#excelForm').submit()" class="fas fa-file-excel fa-2x float-right"></i>
+    <input type="hidden" asp-for="ExcelSearch.Abb" />
+    @for (int i = 0; i < Model.ExcelSearch.ChargingCases?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.ChargingCases[i]" />
+    }
+
+    <input type="hidden" asp-for="ExcelSearch.Max" />
+    <input type="hidden" asp-for="ExcelSearch.Min" />
+    <input type="hidden" asp-for="ExcelSearch.Prefix" />
+    <input type="hidden" asp-for="ExcelSearch.PrefixMode" />
+    <input type="hidden" asp-for="ExcelSearch.SubscriberName" />
+    @for (int i = 0; i < Model.ExcelSearch.Directions?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.Directions[i]" />
+    }
+    @for (int i = 0; i < Model.ExcelSearch.NumberTypes?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.NumberTypes[i]" />
+    }
+    @for (int i = 0; i < Model.ExcelSearch.Owners?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.Owners[i]" />
+    }
+    @for (int i = 0; i < Model.ExcelSearch.RondTypes?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.RondTypes[i]" />
+    }
+    @for (int i = 0; i < Model.ExcelSearch.Statuses?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.Statuses[i]" />
+    }
+    @for (int i = 0; i < Model.ExcelSearch.Areas?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.Areas[i]" />
+    }
+    @for (int i = 0; i < Model.ExcelSearch.LinkTypes?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.LinkTypes[i]" />
+    }
+    @for (int i = 0; i < Model.ExcelSearch.ChargingCases?.Count(); i++)
+    {
+        <input type="hidden" asp-for="ExcelSearch.ChargingCases[i]" />
+    }
+
+</form>
+
+<div class="d-flex justify-content-center mb-3">
+    <span class="mr-2">Page </span>
+    <select class="mr-2" onchange="LoadPage(this);">
+        @for (int i = 1; i < Model.PageInfo.TotalPages + 1; i++)
+        {
+            if (i == Model.PageInfo.CurrentPage)
+            {
+                @:<option selected value="@i">@i</option>
+            }
+            else
+            {
+                @:<option value="@i">@i</option>
+            }
+        }
+    </select>
+    <span> of @Model.PageInfo.TotalPages pages.</span>
+</div>
+<div class="table-responsive">
+    <table class="mt-3 @Settings.TableClass">
+        <thead>
+            <tr>
+                <th>Prefix</th>
+                <th>Min-Max</th>
+                <th>Min-Max (Sheet)</th>
+                <th>Area</th>
+                <th>Area (Sheet)</th>
+                <th>Rond</th>
+                <th>Number Type</th>
+                <th>Subscriber</th>
+                <th>Abbreviation</th>
+                <th>Link Type</th>
+                <th>Direction</th>
+                <th>Float</th>
+                <th>Keshvari</th>
+                <th>Status</th>
+                <th>Owner</th>
+                <th>NE</th>
+                <th>Charging</th>
+                <th>Remark</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var number in Model.Results)
+            {
+                <tr>
+                    <td>@number.Prefix</td>
+                    <td>@number.Min-@number.Max</td>
+                    <td>@number.SecondaryMin-@number.SecondaryMax</td>
+                    <td>@number.Area</td>
+                    <td>@number.SecondaryArea</td>
+                    <td>@number.Rond</td>
+                    <td>@number.NumberType</td>
+                    <td>@($"{number.SubscriberName}")</td>
+                    <td>@number.Abb</td>
+                    <td>@(number.Link?.ToString() ?? "")</td>
+                    <td>@(number.Direction?.ToString() ?? "")</td>
+                    <td><span class="@(@number.IsFloat ? "fa fa-check":"fa fa-times")"></span></td>
+                    <td><span class="@(@number.IsKeshvari ? "fa fa-check":"fa fa-times")"></span></td>
+                    <td>@number.Status</td>
+                    <td>@number.Owner</td>
+                    <td>@number.GetNetworkElementNamesHtml()</td>
+                    <td>@number.ChargingCase</td>
+                    <td>@number.Remark</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts{
+    <script>
+        function LoadPage(select) {
+            var selectedPage = $(select).find(":selected").text();
+            $("#page").val(selectedPage);
+            $("#searchForm").submit();
+
+            
+        }
+    </script>
+}

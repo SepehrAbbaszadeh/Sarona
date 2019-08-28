@@ -56,17 +56,14 @@
                 <a href="#" class="dropdown-item" data-toggle="modal" data-target="#addCore">Core</a>
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addRemote">Remote</a>
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addAccess">Access</a>
-                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPbx">PBX/IP-PBX</a>
             </div>
         </div>
 
         <nav>
             <div class="nav nav-tabs" id="nav-tab">
-                <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-core">Core</a>
-                <a class="nav-item nav-link" id="nav-remotes-tab" data-toggle="tab" href="#nav-remotes" onclick="loadRemoteTable();">Remotes</a>
-                <a class="nav-item nav-link" id="nav-accesses-tab" data-toggle="tab" href="#nav-accesses" onclick="loadAccessTable()">Access</a>
-                <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-pbx" onclick="loadPbxTable()">PBX</a>
-                <a class="nav-item nav-link" id="nav-pbx-tab" data-toggle="tab" href="#nav-ip-pbx" onclick="loadIpPbxTable();">IP-PBX</a>
+                <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-core">Core <span class="badge badge-secondary">@Model.CoreElements.Count()</span></a>
+                <a class="nav-item nav-link" id="nav-remotes-tab" data-toggle="tab" href="#nav-remotes" onclick="loadRemoteTable();">Remotes <span class="badge badge-secondary">@Model.Remotes.Count()</span></a>
+                <a class="nav-item nav-link" id="nav-accesses-tab" data-toggle="tab" href="#nav-accesses" onclick="loadAccessTable()">Access <span class="badge badge-secondary">@Model.Accesses.Count()</span></a>
             </div>
         </nav>
 
@@ -123,7 +120,7 @@
                             @foreach (var remote in Model.Remotes)
                             {
                                 <tr>
-                                    <td>@remote.Name</td>
+                                    <td><a asp-action="Specifications" asp-route-ne="@remote.Name">@remote.Name</a></td>
                                     <td>@remote.Type</td>
                                     <td>@remote.Model</td>
                                     <td>@remote.Manufacturer</td>
@@ -156,7 +153,7 @@
                             @foreach (var access in Model.Accesses)
                             {
                                 <tr>
-                                    <td>@access.Name</td>
+                                    <td><a asp-action="Specifications" asp-route-ne="@access.Name">@access.Name</a></td>
                                     <td>@access.Type</td>
                                     <td>@access.Model</td>
                                     <td>@access.Manufacturer</td>
@@ -164,58 +161,6 @@
                                     <td>@access.UsedCapacity</td>
                                     <td>@access.Parent.Name</td>
                                     <td>@access.Remark</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="nav-pbx">
-                <div class="table-responsive mt-3 pb-3">
-                    <table class="@Settings.TableClickableClass" style="width:100% !important" id="pbxTable">
-                        <thead>
-                            <tr>
-                                <td>Name</td>
-                                <td>Type</td>
-                                <td>Customer Abbreviation</td>
-                                <td>Customer Name</td>
-                                <td>Remark</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var pbx in Model.Pbxs)
-                            {
-                                <tr>
-                                    <td>@pbx.Name</td>
-                                    <td>@pbx.Type</td>
-                                    <td>@pbx.Customer.Abb</td>
-                                    <td>@pbx.Customer.Name</td>
-                                    <td>@pbx.Remark</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="nav-ip-pbx">
-                <div class="table-responsive mt-3 pb-3">
-                    <table class="@Settings.TableClickableClass" style="width:100% !important" id="ipPbxTable">
-                        <thead>
-                            <tr>
-                                <td>Name</td>
-                                <td>Customer Abbreviation</td>
-                                <td>Customer Name</td>
-                                <td>Remark</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var ipPbx in Model.IpPbxs)
-                            {
-                                <tr>
-                                    <td>@ipPbx.Name</td>
-                                    <td>@ipPbx.Customer.Abb</td>
-                                    <td>@ipPbx.Customer.Name</td>
-                                    <td>@ipPbx.Remark</td>
                                 </tr>
                             }
                         </tbody>
@@ -354,15 +299,8 @@
                         <div class="col">
                             <div class="form-group">
                                 <label>Parent (Area)</label>
-                                <select class="form-control" onchange="$('#remoteNE').text('');PopulateExchange($(this).val(),'remoteExchange');">
+                                <select asp-items="@Html.GetEnumSelectList<Area>()" class="form-control" onchange="$('#remoteNE').text('');PopulateExchange($(this).val(),'remoteExchange');">
                                     <option value="" disabled selected>Please select an area!</option>
-                                    <option value="A2">Area 2</option>
-                                    <option value="A3">Area 3</option>
-                                    <option value="A4">Area 4</option>
-                                    <option value="A5">Area 5</option>
-                                    <option value="A6">Area 6</option>
-                                    <option value="A7">Area 7</option>
-                                    <option value="A8">Area 8</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -450,15 +388,9 @@
                         <div class="col">
                             <div class="form-group">
                                 <label>Parent (Area)</label>
-                                <select class="form-control" onchange="$('#acessNE').text('');PopulateExchange($(this).val(),'accessExchange');">
+                                <select asp-items="@Html.GetEnumSelectList<Area>()" class="form-control" onchange="$('#accessNE').text('');PopulateExchange($(this).val(),'accessExchange');">
                                     <option value="" disabled selected>Please select an area!</option>
-                                    <option value="A2">Area 2</option>
-                                    <option value="A3">Area 3</option>
-                                    <option value="A4">Area 4</option>
-                                    <option value="A5">Area 5</option>
-                                    <option value="A6">Area 6</option>
-                                    <option value="A7">Area 7</option>
-                                    <option value="A8">Area 8</option>
+                                    
                                 </select>
                             </div>
                             <div class="form-group">
@@ -501,51 +433,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="addPbx" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add Network Element (PBX/IP-PBX)</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form asp-action="Exchange" method="post">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-group">
-                                <label asp-for="NewNE.NetworkType"></label>
-                                <select id="newPbxNetworkType" asp-for="NewNE.NetworkType" class="form-control" onchange="changePbxType();">
-                                    <option value="@NeType.PBX">PBX</option>
-                                    <option value="@NeType.IP_PBX">IP-PBX</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Customer</label>
-                                <input class="form-control" type="search" placeholder="Search customer name" onkeyup="PopulateCustomer($(this).val(),'pbxCustomerId')" />
-                            </div>
-                            <div class="form-group">
-                                <select required class="form-control" asp-for="NewNE.CustomerId" id="pbxCustomerId"></select>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="NewNE.Remark"></label>
-                                <textarea asp-for="NewNE.Remark" class="form-control"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <input id="newPbxType" type="hidden" asp-for="NewNE.Type" value="PBX" />
-                    <input type="hidden" asp-for="NewNE.ExchangeId" value="@Model.SelectedExchange.Id" />
-                    <input type="hidden" asp-for="NewNE.Owner" value="Customer" />
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Add</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+
 <div class="modal fade" id="editExchange" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -555,7 +443,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="EditExchange" method="post" onsubmit="return AbbValidation($('#SelectedExchange_Abb').val(), '@Model.SelectedExchange.Abb' , 'abbValidation');">
+            <form asp-action="EditExchange" method="post" onsubmit="return AbbValidation($('#SelectedExchange_Abb').val(), '@Model.SelectedExchange.Abb' , 'abbValidation','true');">
                 <div class="modal-body">
                     <div class="form-group">
                         <label asp-for="SelectedExchange.Name"></label><span asp-validation-for="SelectedExchange.Name" class="text-danger"></span>
@@ -568,7 +456,7 @@
                     <div class="form-group">
                         <label asp-for="SelectedExchange.Area"></label>
                         <select asp-for="SelectedExchange.Area" class="form-control">
-                            @for (int i = 2; i < 9; i++)
+                            @for (int i = 2; i < 10; i++)
                             {
                                 @if (i == (int)Model.SelectedDistrict)
                                 {
@@ -598,7 +486,10 @@
                             }
                         </select>
                     </div>
-
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" asp-for="SelectedExchange.IsSite">
+                        <label class="custom-control-label" asp-for="SelectedExchange.IsSite"></label>
+                    </div>
                     <input type="hidden" asp-for="SelectedExchange.Id" />
                     <input type="hidden" asp-for="SelectedExchange.CreatedOn" />
                 </div>
@@ -657,14 +548,9 @@
     <script>
         var isRemoteTableLoaded = false;
         var isAccessTableLoaded = false;
-        var isPbxTableLoaded = false;
-        var isIppbxTableLoaded = false;
 
-        function changePbxType() {
 
-            var selectedValue = $("#newPbxNetworkType").val();
-            $("#newPbxType").val(selectedValue);
-        }
+        
 
         $(document).ready(function () {
             $('#coreTable').DataTable({
@@ -685,18 +571,7 @@
             $("#accessTable").dataTable();
             $("#accessTable").removeAttr("hidden");
         }
-        function loadPbxTable() {
-            if (isPbxTableLoaded)
-                return;
-            $("#pbxTable").dataTable();
-            $("#pbxTable").removeAttr("hidden");
-        }
-        function loadIpPbxTable() {
-            if (isIppbxTableLoaded)
-                return;
-            $("#ipPbxTable").dataTable();
-            $("#ipPbxTable").removeAttr("hidden");
-        }
+        
 
     </script>
 }

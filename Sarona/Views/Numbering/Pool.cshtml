@@ -11,13 +11,24 @@
         @TempData["message"]
     </div>
 }
-<div class="dropdown">
-    <button type="button" class="btn btn-primary dropdown-toggle my-3" data-toggle="dropdown">
-        Add Numbering
-    </button>
-    <div class="dropdown-menu">
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addPrefixModal">New Prefix</a>
-        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addTel30">New Range</a>
+<div>
+    <div class="dropdown my-3">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPrefixModal">
+            Add Prefix
+        </button>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addPrefixesModal">
+            Add Prefixes
+        </button>
+        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+            Selected Prefixes
+        </button>
+        <div class="dropdown-menu">
+            <button class="dropdown-item" type="button" style="cursor:pointer" onclick="OpenReserveCodeModal();">Reserve (Free)</button>
+            <button type="button" class="dropdown-item" style="cursor:pointer" onclick="ShowAssignModal('Multiple Prefixes', '', true);">دایری (Reserve)</button>
+            <button type="button" class="dropdown-item" style="cursor:pointer" onclick="ShowAttachModal('Multiple Prefixes', true);">Attach (Free, Reserve, Float)</button>
+            <button type="button" class="dropdown-item" style="cursor:pointer" onclick="ShowRemoveModal('Multiple Prefixes', true);">تخلیه (Used)</button>
+            <button type="button" class="dropdown-item" style="cursor:pointer" onclick="ShowDeletePrefix('Multiple Prefixes',true)">Delete</button>
+        </div>
     </div>
     <div>
         <form method="get" asp-action="Pool" class="form-inline">
@@ -26,18 +37,45 @@
             <button type="submit" class="btn btn-primary mb-2">Search</button>
         </form>
     </div>
+    <div class="d-flex justify-content-center mb-3">
+        <span class="mr-2">Page </span>
+        <select class="mr-2" onchange="LoadPage(this,'@Model.Prefix');">
+            @for (int i = 1; i < Model.PagingInfo.TotalPages + 1; i++)
+            {
+                if (i == Model.PagingInfo.CurrentPage)
+                {
+                    @:<option selected value="@i">@i</option>
+                }
+                else
+                {
+                    @:<option value="@i">@i</option>
+                }
+            }
+        </select>
+        <span> of @Model.PagingInfo.TotalPages pages.</span>
+    </div>
     <div class="table-responsive">
         <table class="@Settings.TableClass">
             <thead>
                 <tr>
+                    <th><input type="checkbox" onchange="SelectAllPrefixes(this);" /></th>
                     <th>Prefix</th>
-                    <th>Min</th>
-                    <th>Max</th>
-                    <th>Charging</th>
-                    <th>Type</th>
-                    <th>Routing</th>
+                    <th>Min-Max</th>
+                    <th>Min-Max (Sheet)</th>
+                    <th>Area</th>
+                    <th>Area (Sheet)</th>
+                    <th>Rond</th>
+                    <th>Number Type</th>
+                    <th>Subscriber</th>
+                    <th>Abbreviation</th>
+                    <th>Link Type</th>
+                    <th>Direction</th>
                     <th>Float</th>
+                    <th>Keshvari</th>
                     <th>Status</th>
+                    <th>Owner</th>
+                    <th>NE</th>
+                    <th>Charging</th>
                     <th>Remark</th>
                     <th>Actions</th>
                 </tr>
@@ -46,20 +84,48 @@
                 @foreach (var number in Model.Prefixes)
                 {
                     <tr>
+                        <td><input value="@number.Prefix" class="my-check" type="checkbox" onchange="SelectPrefix(this);"/></td>
                         <td>@number.Prefix</td>
-                        <td>@number.Min</td>
-                        <td>@number.Max</td>
-                        <td>@number.ChargingCase</td>
+                        <td>@number.Min-@number.Max</td>
+                        <td>@number.SecondaryMin-@number.SecondaryMax</td>
+                        <td>@number.Area</td>
+                        <td>@number.SecondaryArea</td>
+                        <td>@number.Rond</td>
                         <td>@number.NumberType</td>
-                        <td>@number.RoutingType</td>
+                        <td>@($"{number.SubscriberName}")</td>
+                        <td>@number.Abb</td>
+                        <td>@(number.Link?.ToString() ?? "")</td>
+                        <td>@(number.Direction?.ToString() ?? "")</td>
                         <td><span class="@(@number.IsFloat ? "fa fa-check":"fa fa-times")"></span></td>
+                        <td><span class="@(@number.IsKeshvari ? "fa fa-check":"fa fa-times")"></span></td>
                         <td>@number.Status</td>
+                        <td>@number.Owner</td>
+                        <td>@number.GetNetworkElementNamesHtml()</td>
+                        <td>@number.ChargingCase</td>
                         <td>@number.Remark</td>
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" data-html="true" title="User: @number.Username <br/>Created at: @number.CreatedOn.GetPersianDate()<br/>Modified at: @number.ModifiedOn.GetPersianDate()<br/>Expire On: @number.ExpireDate.GetPersianDate()">Details</button>
-                                <button type="button" onclick="ShowEditPrefix(@number.Id)" class="btn btn-warning">Edit</button>
-                                <button type="button" onclick="ShowDeletePrefix(@number.Id)" class="btn btn-danger">Delete</button>
+                                <button type="button" class="btn btn-warning" onclick="ShowEditPrefix(@number.Id)">Edit</button>
+
+
+
+                                @if (number.Status == NumberingStatus.Reserved)
+                                {
+                                    <button type="button" class="btn btn-primary" onclick="ShowAssignModal('@number.Prefix', '@number.Link')">دایری</button>
+                                }
+                                else if (number.Status == NumberingStatus.Used)
+                                {
+
+                                    <button type="button" class="btn btn-primary" onclick="ShowRemoveModal('@number.Prefix')">تخلیه</button>
+                                }
+                                @if (number.Status == NumberingStatus.Free || number.Status == NumberingStatus.Reserved || (number.Status == NumberingStatus.Used && number.IsFloat))
+                                {
+                                    <button type="button" class="btn btn-light" onclick="ShowAttachModal('@number.Prefix')">Attach</button>
+                                }
+
+
+                                <button type="button" onclick="@(number.NumberingPoolNetworkElements.Count()==0 ? $"ShowDeletePrefix('{number.Prefix}')": "$('#errorDeleteModal').modal()")" class="btn btn-danger">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -67,7 +133,23 @@
             </tbody>
         </table>
     </div>
-
+    <div class="d-flex justify-content-center mb-3">
+        <span class="mr-2">Page </span>
+        <select class="mr-2" onchange="LoadPage(this,'@Model.Prefix');">
+            @for (int i = 1; i < Model.PagingInfo.TotalPages + 1; i++)
+            {
+                if (i == Model.PagingInfo.CurrentPage)
+                {
+                    @:<option selected value="@i">@i</option>
+                }
+                else
+                {
+                    @:<option value="@i">@i</option>
+                }
+            }
+        </select>
+        <span> of @Model.PagingInfo.TotalPages pages.</span>
+    </div>
 </div>
 
 <div class="modal fade" id="addPrefixModal" tabindex="-1">
@@ -85,18 +167,67 @@
                         <div class="col">
                             <div class="form-group">
                                 <label asp-for="NewPrefix.Prefix"></label><div><span class="text-danger" id="prefixValidation"></span><span asp-validation-for="NewPrefix.Prefix" class="text-danger"></span></div>
-                                <input asp-for="NewPrefix.Prefix" class="form-control" />
+                                <input asp-for="NewPrefix.Prefix" class="form-control" onkeyup="PrefixValidation($('#NewPrefix_Prefix').val(), 'prefixValidation');" />
                             </div>
                             <div class="form-group">
-                                <label asp-for="NewPrefix.Min"></label><span asp-validation-for="NewPrefix.Min" class="text-danger"></span>
-                                <input asp-for="NewPrefix.Min" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                                <label asp-for="NewPrefix.Min"></label><div><span asp-validation-for="NewPrefix.Min" class="text-danger"></span></div>
+                                <input asp-for="NewPrefix.Min" class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label asp-for="NewPrefix.Max"></label><div><span asp-validation-for="NewPrefix.Max" class="text-danger"></span></div>
-                                <input asp-for="NewPrefix.Max" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                                <input asp-for="NewPrefix.Max" class="form-control" />
                             </div>
                             <div class="form-group">
-                                <label asp-for="NewPrefix.ChargingCase"></label><div><span class="text-danger" id="abbValidation"></span><span asp-validation-for="NewPrefix.ChargingCase" class="text-danger"></span></div>
+                                <label asp-for="NewPrefix.Area"></label><div><span asp-validation-for="NewPrefix.Area" class="text-danger"></span></div>
+                                <select asp-for="NewPrefix.Area" class="form-control">
+                                    <option selected value=""></option>
+                                    <option value="2">Area 2</option>
+                                    <option value="3">Area 3</option>
+                                    <option value="4">Area 4</option>
+                                    <option value="5">Area 5</option>
+                                    <option value="6">Area 6</option>
+                                    <option value="7">Area 7</option>
+                                    <option value="8">Area 8</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.SecondaryMin"></label><div><span asp-validation-for="NewPrefix.SecondaryMin" class="text-danger"></span></div>
+                                <input asp-for="NewPrefix.SecondaryMin" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.SecondaryMax"></label><div><span asp-validation-for="NewPrefix.SecondaryMax" class="text-danger"></span></div>
+                                <input asp-for="NewPrefix.SecondaryMax" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.SecondaryArea"></label><div><span asp-validation-for="NewPrefix.SecondaryArea" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewPrefix.SecondaryArea">
+                                    <option value=""></option>
+                                    <option value="2">Area 2</option>
+                                    <option value="3">Area 3</option>
+                                    <option value="4">Area 4</option>
+                                    <option value="5">Area 5</option>
+                                    <option value="6">Area 6</option>
+                                    <option value="7">Area 7</option>
+                                    <option value="8">Area 8</option>
+                                </select>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="NewPrefix.IsFloat">
+                                <label class="custom-control-label" asp-for="NewPrefix.IsFloat">Float</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="NewPrefix.IsKeshvari">
+                                <label class="custom-control-label" asp-for="NewPrefix.IsKeshvari"></label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="IsReservedPrefix">
+                                <label class="custom-control-label" asp-for="IsReservedPrefix"></label>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.ChargingCase"></label><div><span asp-validation-for="NewPrefix.ChargingCase" class="text-danger"></span></div>
                                 <select class="form-control" asp-for="NewPrefix.ChargingCase">
                                     @foreach (var charging in Model.Miscs.Where(x => x.Type == MiscType.ChargingCase))
                                     {
@@ -111,18 +242,13 @@
                                     }
                                 </select>
                             </div>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" asp-for="NewPrefix.IsFloat">
-                                <label class="custom-control-label" asp-for="NewPrefix.IsFloat">Float</label>
-                            </div>
-                        </div>
 
-                        <div class="col">
                             <div class="form-group">
                                 <label asp-for="NewPrefix.ExpireDate"></label>
                                 <input class="form-control" type="text" readonly id="pcal1" />
                                 <input type="hidden" asp-for="NewPrefix.ExpireDate" />
                             </div>
+
                             <div class="form-group">
                                 <label asp-for="NewPrefix.NumberType"></label><div><span asp-validation-for="NewPrefix.NumberType" class="text-danger"></span></div>
                                 <select class="form-control" asp-for="NewPrefix.NumberType">
@@ -140,19 +266,20 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label asp-for="NewPrefix.RoutingType"></label><div><span asp-validation-for="NewPrefix.RoutingType" class="text-danger"></span></div>
-                                <select class="form-control" asp-for="NewPrefix.RoutingType">
-                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.RoutingType))
-                                    {
-                                        if (item.Name == "استانی")
-                                        {
-                                            <option selected value="@item.Name">@item.Name</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@item.Name">@item.Name</option>
-                                        }
-                                    }
+                                <label asp-for="NewPrefix.Link"></label><div><span asp-validation-for="NewPrefix.Link" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewPrefix.Link">
+                                    <option value=""></option>
+                                    <option value="2">@LinkType.PRA</option>
+                                    <option value="1">@LinkType.SIP</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="NewPrefix.Direction"></label><div><span asp-validation-for="NewPrefix.Direction" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="NewPrefix.Direction">
+                                    <option value=""></option>
+                                    <option value="0">@LinkDirection.Incoming</option>
+                                    <option value="1">@LinkDirection.Outgoing</option>
+                                    <option value="2">@LinkDirection.Bothway</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -171,7 +298,6 @@
                                     }
                                 </select>
                             </div>
-
                         </div>
                     </div>
                     <div class="row">
@@ -185,10 +311,180 @@
                 </div>
                 <div class="modal-footer">
                     <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <input type="hidden" name="page" value="@Model.PagingInfo.CurrentPage" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Add</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addPrefixesModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Prefixes</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form asp-action="InsertFreeCodes" method="post">
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="FreeCode.From"></label><div><span asp-validation-for="FreeCode.From" class="text-danger"></span></div>
+                                <input asp-for="FreeCode.From" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FreeCode.To"></label><div><span asp-validation-for="FreeCode.To" class="text-danger"></span></div>
+                                <input asp-for="FreeCode.To" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FreeCode.Min"></label><div><span asp-validation-for="FreeCode.Min" class="text-danger"></span></div>
+                                <input asp-for="FreeCode.Min" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FreeCode.Max"></label><div><span asp-validation-for="FreeCode.Max" class="text-danger"></span></div>
+                                <input asp-for="FreeCode.Max" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FreeCode.Area"></label><div><span asp-validation-for="FreeCode.Area" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="FreeCode.Area">
+                                    <option selected value="2">Area 2</option>
+                                    <option value="3">Area 3</option>
+                                    <option value="4">Area 4</option>
+                                    <option value="5">Area 5</option>
+                                    <option value="6">Area 6</option>
+                                    <option value="7">Area 7</option>
+                                    <option value="8">Area 8</option>
+                                </select>
+                            </div>
+
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="FreeCode.IsReserved">
+                                <label class="custom-control-label" asp-for="FreeCode.IsReserved"></label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="FreeCode.NotDefined">
+                                <label class="custom-control-label" asp-for="FreeCode.NotDefined"></label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label asp-for="FreeCode.NumberType"></label><div><span asp-validation-for="FreeCode.NumberType" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="FreeCode.NumberType" asp-items="@(new SelectList(Model.Miscs.Where(x=>x.Type == MiscType.NumberType),"Name","Name"))"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="FreeCode.Link"></label><div><span asp-validation-for="FreeCode.Link" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="FreeCode.Link">
+                                    <option value=""></option>
+                                    <option value="2">@LinkType.PRA</option>
+                                    <option value="1">@LinkType.SIP</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FreeCode.ChargingCase"></label><div><span asp-validation-for="FreeCode.ChargingCase" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="FreeCode.ChargingCase">
+                                    @foreach (var charging in Model.Miscs.Where(x => x.Type == MiscType.ChargingCase))
+                                    {
+                                        if (charging.Name == "شهری")
+                                        {
+                                            <option selected value="@charging.Name">@charging.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@charging.Name">@charging.Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <input type="hidden" name="page" value="@Model.PagingInfo.CurrentPage" />
+                    <button class="btn btn-primary" type="submit">Insert</button>
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="assignPrefixModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Prefix (<span id="assignPrefixTitle"></span>)</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label for="linkType">Link Type</label>
+                    <select id="linkType" class="form-control" onchange="$('#linkTypeAvailableCustomer').val($(this).find(':selected').val()); $('#linkTypeNewCustomer').val($(this).find(':selected').val());">
+                        <option selected value="2">@LinkType.PRA</option>
+                        <option value="1">@LinkType.SIP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="direction">Direction</label>
+                    <select class="form-control" name="direction" onchange="$('#directionAvailableCustomer').val($(this).find(':selected').val()); $('#directionNewCustomer').val($(this).find(':selected').val());" id="direction">
+                        <option value="0">@LinkDirection.Incoming</option>
+                        <option selected value="1">@LinkDirection.Outgoing</option>
+                        <option value="2">@LinkDirection.Bothway</option>
+                    </select>
+                </div>
+                <h3>Search Subscriber</h3>
+                <div class="form-group">
+                    <label for="searchSubscriber">Subscriber</label>
+                    <input required type="text" id="searchSubscriber" class="form-control" placeholder="Search" />
+                </div>
+                <button class="btn btn-primary" onclick="SearchSubscriber();">Search</button>
+                <form asp-action="AssignPrefix" method="post" @*onsubmit="return CheckSelectedCustomer();" *@>
+                    <div class="form-group">
+                        <label for="subscriberResults">Results <span id="resultBadge" class="badge badge-info"></span> </label><div><span class="text-danger" id="selectedCustomerError"></span></div>
+                        <select required name="customerId" id="subscriberResults" class="form-control"></select>
+                    </div>
+                    <input type="hidden" name="selectedPrefix" id="prefixWithAssign" />
+                    <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <input type="hidden" name="page" value="@Model.PagingInfo.CurrentPage" />
+                    <input type="hidden" name="link" value="2" id="linkTypeAvailableCustomer" />
+                    <input type="hidden" name="direction" value="1" id="directionAvailableCustomer" />
+                    <button type="submit" class="btn btn-primary">Select</button>
+                </form>
+                <h3>Add New Subscriber</h3>
+                <form asp-action="AssignPrefixWithNewCustomer" method="post" onsubmit="return AbbValidation($('#newCustomerAbb').val(), '', 'abbValidationError');">
+                    <div class="form-group">
+                        <label for="newSubscriber">New Subscriber Name</label>
+                        <input required type="text" name="name" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="newAbb">New Abbreviation</label><div><span class="text-danger" id="abbValidationError"></span></div>
+                        <input required type="text" name="abb" class="form-control" id="newCustomerAbb" onkeyup="AbbValidation($(this).val(),'','abbValidationError')" />
+                    </div>
+                    <input type="hidden" name="selectedPrefix" id="prefixWithAddingCustomer" />
+                    <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <input type="hidden" name="page" value="@Model.PagingInfo.CurrentPage" />
+                    <input type="hidden" name="link" value="2" id="linkTypeNewCustomer" />
+                    <input type="hidden" name="direction" value="1" id="directionNewCustomer" />
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -198,29 +494,77 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Prefix</h5>
+                <h5 class="modal-title" id="editPrefixModalTitle">Edit Prefix</h5>
                 <button type="button" class="close" data-dismiss="modal">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="EditPrefix" method="post" onsubmit="return PrefixValidation($('#NewPrefix_Prefix').val(), 'prefixValidation');">
+            <form asp-action="EditPrefix" method="post" onsubmit="return PrefixValidation($('#EditPrefix_Prefix').val(), 'editPrefixValidation',oldPrefix);">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
                             <div class="form-group">
-                                <label asp-for="EditPrefix.Prefix"></label><div><span class="text-danger" id="prefixValidation"></span><span asp-validation-for="EditPrefix.Prefix" class="text-danger"></span></div>
-                                <input asp-for="EditPrefix.Prefix" class="form-control" />
-                            </div>
+                                    <label asp-for="EditPrefix.Prefix"></label>
+                                    <div><span class="text-danger" id="editPrefixValidation"></span></div>
+                                    <div><span asp-validation-for="EditPrefix.Prefix" class="text-danger"></span></div>
+                                    <input asp-for="EditPrefix.Prefix" class="form-control" onkeyup="PrefixValidation($('#EditPrefix_Prefix').val(), 'editPrefixValidation',oldPrefix);" />
+                                </div>
                             <div class="form-group">
                                 <label asp-for="EditPrefix.Min"></label><div><span asp-validation-for="EditPrefix.Min" class="text-danger"></span></div>
-                                <input asp-for="EditPrefix.Min" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                                <input asp-for="EditPrefix.Min" class="form-control" />
                             </div>
                             <div class="form-group">
                                 <label asp-for="EditPrefix.Max"></label><div><span asp-validation-for="EditPrefix.Max" class="text-danger"></span></div>
-                                <input asp-for="EditPrefix.Max" class="form-control" onkeyup="AbbValidation($(this).val(),'','abbValidation')" />
+                                <input asp-for="EditPrefix.Max" class="form-control" />
                             </div>
                             <div class="form-group">
-                                <label asp-for="EditPrefix.ChargingCase"></label><div><span class="text-danger" id="abbValidation"></span><span asp-validation-for="EditPrefix.ChargingCase" class="text-danger"></span></div>
+                                <label asp-for="EditPrefix.Area"></label><div><span asp-validation-for="EditPrefix.Area" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="EditPrefix.Area">
+                                    <option value=""></option>
+                                    <option value="2">Area 2</option>
+                                    <option value="3">Area 3</option>
+                                    <option value="4">Area 4</option>
+                                    <option value="5">Area 5</option>
+                                    <option value="6">Area 6</option>
+                                    <option value="7">Area 7</option>
+                                    <option value="8">Area 8</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.SecondaryMin"></label><div><span asp-validation-for="EditPrefix.SecondaryMin" class="text-danger"></span></div>
+                                <input asp-for="EditPrefix.SecondaryMin" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.SecondaryMax"></label><div><span asp-validation-for="EditPrefix.SecondaryMax" class="text-danger"></span></div>
+                                <input asp-for="EditPrefix.SecondaryMax" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.SecondaryArea"></label><div><span asp-validation-for="EditPrefix.SecondaryArea" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="EditPrefix.SecondaryArea">
+                                    <option value=""></option>
+                                    <option value="2">Area 2</option>
+                                    <option value="3">Area 3</option>
+                                    <option value="4">Area 4</option>
+                                    <option value="5">Area 5</option>
+                                    <option value="6">Area 6</option>
+                                    <option value="7">Area 7</option>
+                                    <option value="8">Area 8</option>
+                                </select>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="EditPrefix.IsFloat">
+                                <label class="custom-control-label" asp-for="EditPrefix.IsFloat">Float</label>
+                            </div>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" asp-for="EditPrefix.IsKeshvari">
+                                <label class="custom-control-label" asp-for="EditPrefix.IsKeshvari"></label>
+                            </div>
+                        </div>
+
+                        <div class="col">
+
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.ChargingCase"></label><div><span asp-validation-for="EditPrefix.ChargingCase" class="text-danger"></span></div>
                                 <select class="form-control" asp-for="EditPrefix.ChargingCase">
                                     @foreach (var charging in Model.Miscs.Where(x => x.Type == MiscType.ChargingCase))
                                     {
@@ -228,13 +572,6 @@
                                     }
                                 </select>
                             </div>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" asp-for="EditPrefix.IsFloat">
-                                <label class="custom-control-label" asp-for="EditPrefix.IsFloat">Float</label>
-                            </div>
-                        </div>
-
-                        <div class="col">
                             <div class="form-group">
                                 <label asp-for="EditPrefix.ExpireDate"></label>
                                 <input class="form-control" type="text" readonly id="pcal2" />
@@ -250,12 +587,20 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label asp-for="EditPrefix.RoutingType"></label><div><span asp-validation-for="EditPrefix.RoutingType" class="text-danger"></span></div>
-                                <select class="form-control" asp-for="EditPrefix.RoutingType">
-                                    @foreach (var item in Model.Miscs.Where(x => x.Type == MiscType.RoutingType))
-                                    {
-                                        <option value="@item.Name">@item.Name</option>
-                                    }
+                                <label asp-for="EditPrefix.Link"></label><div><span asp-validation-for="EditPrefix.Link" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="EditPrefix.Link">
+                                    <option value=""></option>
+                                    <option value="2">@LinkType.PRA</option>
+                                    <option value="1">@LinkType.SIP</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="EditPrefix.Direction"></label><div><span asp-validation-for="EditPrefix.Direction" class="text-danger"></span></div>
+                                <select class="form-control" asp-for="EditPrefix.Direction">
+                                    <option value=""></option>
+                                    <option value="0">@LinkDirection.Incoming</option>
+                                    <option value="1">@LinkDirection.Outgoing</option>
+                                    <option value="2">@LinkDirection.Bothway</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -280,6 +625,11 @@
                 </div>
                 <div class="modal-footer">
                     <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <input type="hidden" name="page" value="@Model.PagingInfo.CurrentPage" />
+                    <input type="hidden" asp-for="EditPrefix.Id" />
+                    @*<input type="hidden" asp-for="EditPrefix.Prefix" />*@
+                    <input type="hidden" asp-for="EditPrefix.Abb" />
+                    <input type="hidden" asp-for="EditPrefix.SubscriberName" />
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-warning">Edit</button>
                 </div>
@@ -292,7 +642,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Delete Prefix</h5>
+                <h5 class="modal-title">Delete Prefix (<span id="deletePrefixSpan"></span>)</h5>
                 <button type="button" class="close" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
@@ -304,8 +654,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <input type="hidden" name="id" id="deletePrefixId" />
+                    <input type="hidden" name="selectedPrefix" id="deletePrefixCode" />
                     <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <input type="hidden" name="page" value="@Model.PagingInfo.CurrentPage" />
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </div>
             </form>
@@ -313,60 +664,152 @@
     </div>
 </div>
 
+<div class="modal fade" id="reservePrefixModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reserve Prefixes</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="reserveMessage"></p>
+                Are you sure to reserve selected prefixes?
+                <div class="form-group">
+                    <label for="reservedArea">Area:</label>
+                    <select class="form-control" id="reservedArea">
+                        <option value="">No Area</option>
+                        <option value="2">Area 2</option>
+                        <option value="3">Area 3</option>
+                        <option value="4">Area 4</option>
+                        <option value="5">Area 5</option>
+                        <option value="6">Area 6</option>
+                        <option value="7">Area 7</option>
+                        <option value="8">Area 8</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reservedLinkType">Link Type:</label>
+                    <select class="form-control" id="reservedLink">
+                        <option value="">No Type</option>
+                        <option value="@LinkType.SIP">SIP</option>
+                        <option value="@LinkType.PRA">PRA</option>
+                    </select>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input value="true" type="checkbox" class="custom-control-input" id="reservedChangeMinMax">
+                    <label class="custom-control-label" for="reservedChangeMinMax">Change Min & Max</label>
+                </div>
+                <div class="form-group">
+                    <label for="reservedMin">Min</label>
+                    <input class="form-control" id="reservedMin" type="number" value="0" />
+                </div>
+                <div class="form-group">
+                    <label for="reservedMax">Max</label>
+                    <input class="form-control" id="reservedMax" type="number" value="0" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning" onclick="ReserveCodes();">Reserve Selected Codes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="errorDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Error</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage"></p>
+                First detach the numbering from all NEs.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="removePrefixModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove (<span id="removePrefixTitle"></span>)</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage"></p>
+                Are you sure?
+            </div>
+            <div class="modal-footer">
+                <form method="post" asp-action="RemovePrefix">
+                    <input type="hidden" name="selectedPrefix" id="removePrefix" />
+                    <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <input type="hidden" name="page" value="@Model.PagingInfo.CurrentPage" />
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">تخلیه</button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="attachPrefixModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Attach Prefix</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-action="AttachPrefix">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Area</label>
+                        <select asp-items="@Html.GetEnumSelectList<Area>()" class="form-control" onchange="$('#attachNE').text('');PopulateExchange($(this).val(),'accessExchange');">
+                            <option value="" disabled selected>Please select an area!</option>
+                            
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Exchange</label>
+                        <select class="form-control" id="accessExchange" onchange="PopulateNE($(this).val(), '' ,'attachNE')"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Network Element</label>
+                        <select required class="form-control" name="neId" id="attachNE"></select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="selectedPrefix" id="attachPrefix" />
+                    <input type="hidden" name="prefix" value="@Model.Prefix" />
+                    <input type="hidden" name="page" value="@Model.PagingInfo.CurrentPage" />
+                    <button type="submit" class="btn btn-danger">Attach</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
 @section Scripts{
-    <script>
-
-
-        $(document).ready(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-            var objCal1 = new AMIB.persianCalendar('pcal1', {
-                extraInputID: "NewPrefix_ExpireDate",
-                extraInputFormat: "YYYY/MM/DD",
-                initialDate: "1500/01/01",
-                btnClassName: "fa fa-calendar-alt float-right"
-            });
-
-            var objCal2 = new AMIB.persianCalendar('pcal2', {
-                extraInputID: "EditPrefix_ExpireDate",
-                extraInputFormat: "MM-DD-YYYY",
-                btnClassName: "fa fa-calendar-alt float-right"
-            });
-
-
-
-        });
-
-        function ShowDeletePrefix(id) {
-            $("#deletePrefixId").val(id);
-            $('#deletePrefixModal').modal();
-
-        }
-
-
-        function ShowEditPrefix(id) {
-            $.get("/numbering/prefix/" + id,
-                function (result) {
-                    $("#EditPrefix_Prefix").val(result.prefix);
-                    $("#EditPrefix_Min").val(result.min);
-                    $("#EditPrefix_Max").val(result.max);
-                    $("#EditPrefix_CharginCase").val(result.chargingCase);
-                    $("#EditPrefix_Remark").val(result.remark);
-                    $("#EditPrefix_Owner").val(result.owner);
-                    $("#EditPrefix_NumberType").val(result.numberType);
-                    $("#EditPrefix_RoutingType").val(result.routingType);
-                    $("#EditPrefix_ExpireDate").val(result.expireDate);
-                    if (result.isFloat === true)
-                        $("#EditPrefix_IsFloat").prop("checked", true);
-                    var date = new Date(result.expireDate);
-                    var y = date.getFullYear();
-                    var m = date.getMonth() + 1;
-                    var d = date.getDate();
-                    var pDate = gregorian_to_jalali(y, m, d);
-                    $("#pcal2").val(pDate.join("/"));
-                    $("#editPrefixModal").modal();
-                });
-
-        }
-
-    </script>
+    <script asp-append-version="true" src="~/js/Pool.js"></script>
 }

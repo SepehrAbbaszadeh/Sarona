@@ -18,8 +18,8 @@ namespace Sarona.Models
         A7 = 7,
         [Display(Name = "Area 8")]
         A8 = 8,
-        //[Display(Name = "Other Networks")]
-        //ON = 9
+        [Display(Name = "Other Networks")]
+        ON = 9
 
     }
 }

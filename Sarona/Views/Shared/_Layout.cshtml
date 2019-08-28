@@ -33,15 +33,27 @@
                     <li class="nav-item @(selectedController=="network"?"active":"")">
                         <a class="nav-link" asp-controller="Network" asp-action="District">Network</a>
                     </li>
-                    <li class="nav-item @(selectedController=="crm"?"active":"")">
-                        <a class="nav-link" asp-action="Customers" asp-controller="Crm">CRM</a>
-                    </li>
                     <li class="nav-item @(selectedController=="numbering"?"active":"")">
                         <a class="nav-link" asp-action="Pool" asp-controller="Numbering">Numbering</a>
                     </li>
-                    <li class="nav-item @(selectedController=="report"?"active":"")">
-                        <a class="nav-link" asp-action="Shenasname" asp-controller="Report">Reports</a>
+                    
+                    <li class="nav-item @(selectedController=="topology"?"active":"")">
+                        <a class="nav-link" asp-action="index" asp-controller="topology">Topology</a>
                     </li>
+                    <li class="nav-item dropdown @(selectedController=="report"?"active":"")">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Reports</a>
+
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" asp-controller="report" asp-action="shenasname">شناسنامه مراکز</a>
+                            <a class="dropdown-item" asp-controller="report" asp-action="ne">Network Element</a>
+                            <a class="dropdown-item" asp-controller="report" asp-action="numbering">Numbering</a>
+                            <a class="dropdown-item" asp-controller="report" asp-action="RedFolder">Red Folder</a>
+                            <a class="dropdown-item" asp-controller="report" asp-action="FullSheet">Full Sheet</a>
+                            <a class="dropdown-item" asp-controller="report" asp-action="Rms">RMS Weekly</a>
+                        </div>
+
+                    </li>
+
                     @if (Context.User.IsInRole(Settings.AdminsRole))
                     {
                         <li class="nav-item @(selectedController=="admin"?"active":"")">
@@ -59,10 +71,10 @@
                     </li>
 
                 </ul>
-                <form class="form-inline my-2 my-lg-0">
+                @*<form method="get" asp-action="index" asp-controller="search" class="form-inline my-2 my-lg-0">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                     <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-                </form>
+                </form>*@
             </div>
         </nav>
     </header>
@@ -72,6 +84,34 @@
     <footer class="footer text-center small text-white p-2">
         &copy;Traffic and Numbering Department <br />Powered by ASP.NET Core 2.1, Entity Framework 2.1 and Bootstrap 4.
     </footer>
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Password</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-danger" id="passwordErrors"></div>
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input class="form-control" type="password" required id="currentPassword" name="currentPassword" />
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input class="form-control" type="password" required id="newPassword" name="newPassword" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning" onclick="ChangePassword();">Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="~/js/main.min.js" asp-append-version="true"></script>
     <script src="~/js/Site.js" asp-append-version="true"></script>
     <script asp-append-version="true" src="~/js/js-persian-cal.js"></script>
@@ -80,31 +120,5 @@
 </html>
 
 
-<div class="modal fade" id="changePasswordModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Change Password</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="text-danger" id="passwordErrors"></div>
-                <div class="form-group">
-                    <label for="currentPassword">Current Password</label>
-                    <input class="form-control" type="password" required id="currentPassword" name="currentPassword" />
-                </div>
-                <div class="form-group">
-                    <label for="newPassword">New Password</label>
-                    <input class="form-control" type="password" required id="newPassword" name="newPassword" />
-                </div>
-            </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-warning" onclick="ChangePassword();">Change</button>
-                </div>
-        </div>
-    </div>
-</div>
+
 

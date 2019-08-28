@@ -12,7 +12,7 @@
         case NeType.Core:
             {
                 <a class="list-group-item list-group-item-action @(selectedAction == "links" ? "active":"")" asp-action="Links">Links</a>
-                <a class="list-group-item list-group-item-action @(selectedAction == "numberings" ? "active":"")" asp-action="Numberings">Numberings</a>
+                <a class="list-group-item list-group-item-action @(selectedAction == "numbering" ? "active":"")" asp-action="Numbering">Numbering</a>
                 <a class="list-group-item list-group-item-action @(selectedAction == "remotes" ? "active":"")" asp-action="Remotes">Remotes</a>
                 <a class="list-group-item list-group-item-action @(selectedAction == "accesses" ? "active":"")" asp-action="Accesses">Accesses</a>
             }
@@ -20,14 +20,7 @@
         case NeType.Access:
         case NeType.Remote:
             {
-                <a class="list-group-item list-group-item-action @(selectedAction == "numberings" ? "active":"")" asp-action="Numberings">Numbering</a>
-            }
-            break;
-        case NeType.PBX:
-        case NeType.IP_PBX:
-            {
-                <a class="list-group-item list-group-item-action @(selectedAction == "links" ? "active":"")" asp-action="Links">Links</a>
-                <a class="list-group-item list-group-item-action @(selectedAction == "numberings" ? "active":"")" asp-action="Numberings">Numbering</a>
+                <a class="list-group-item list-group-item-action @(selectedAction == "numbering" ? "active":"")" asp-action="Numbering">Numbering</a>
             }
             break;
     }

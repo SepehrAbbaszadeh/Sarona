@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Sarona.ViewModels;
-namespace SportsStore.Infrastructure
+namespace Sarona.Infrastructure
 {
     [HtmlTargetElement("nav", Attributes = "page-model")]
     public class PageLinkTagHelper : TagHelper
@@ -27,7 +27,7 @@ namespace SportsStore.Infrastructure
             {
                 TagBuilder tag = new TagBuilder("a");
                 tag.Attributes["href"] = urlHelper.Action(PageAction,
-                   new { productPage = i });
+                   new { id = i });
                 tag.InnerHtml.Append(i.ToString());
                 result.InnerHtml.AppendHtml(tag);
             }

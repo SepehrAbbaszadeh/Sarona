@@ -1,4 +1,29 @@
 ﻿
+$.validator.addMethod('minmax',
+    function (value, element, params) {
+        // Get element value. Classic genre has value '0'.
+        var genre = $(params[0]).val(),
+            year = params[1],
+            date = new Date(value);
+        if (genre && genre.length > 0 && genre[0] === '0') {
+            // Since this is a classic movie, invalid if release date is after given year.
+            return date.getFullYear() <= year;
+        }
+
+        return true;
+    });
+
+$.validator.unobtrusive.adapters.add('classicmovie',
+    ['year'],
+    function (options) {
+        var element = $(options.form).find('select#Genre')[0];
+        options.rules['classicmovie'] = [element, parseInt(options.params['year'])];
+        options.messages['classicmovie'] = options.message;
+    });
+
+
+
+
 // Text format of validation.
 $(document).ready(function () {
     $("input.input-validation-error")
@@ -34,7 +59,7 @@ function PopulateNE(exchangeAbb, type, selectId) {
     $("#" + selectId).append("<option disable selected value=''>Please select an NE.");
     $.getJSON("/api/ne/abb/" + exchangeAbb + "/" + type, function (result) {
         $.each(result, function () {
-            $("#" + selectId).append($("<option />").val(this.id).text(this.name + " (" + this.model + ")"));
+            $("#" + selectId).append($("<option />").val(this.id).text(this.name + " (" + this.model + " - " + this.manufacturer + ")"));
         });
     });
 }
@@ -49,7 +74,9 @@ function PopulateCustomer(name, selectId) {
     });
 }
 
-function AbbValidation(newAbb, oldAbb, validationId) {
+
+
+function AbbValidation(newAbb, oldAbb, validationId, onlyExchanges = false) {
     var dup;
     newAbb = newAbb.toUpperCase();
     oldAbb = oldAbb.toUpperCase();
@@ -59,7 +86,7 @@ function AbbValidation(newAbb, oldAbb, validationId) {
     $.get({
         async: false,
         url: '/Network/AbbValidation',
-        data: { abb: newAbb },
+        data: { abb: newAbb, onlyExchanges },
         success: function (result) {
             if (result === true)
                 dup = true;
@@ -72,6 +99,39 @@ function AbbValidation(newAbb, oldAbb, validationId) {
     return dup;
 }
 
+function PrefixValidation(prefix, validationId, oldPrefix = '') {
+    var res;
+    $("#" + validationId).text("");
+    if (prefix === '')
+        return false;
+    $.ajax({
+        async: false,
+        url: '/Numbering/PrefixValidation',
+        data: { prefix, oldPrefix },
+        success: function (result) {
+            if (result === 0) {
+                $("#" + validationId).text("");
+                res = true;
+            }
+            else if (result > 1) {
+                $("#" + validationId).text("There are " + result + " overlaps.");
+                res = false;
+            }
+
+            else if (result === 1) {
+                $("#" + validationId).text("There is one overlap.");
+                res = false;
+            }
+        },
+        error: function () {
+            alert("Cannot get prefix validation.");
+        }
+    });
+    return res;
+
+
+}
+
 function NeNameValidation(neName, oldName, validationId) {
     var dup;
     neName = neName.toUpperCase();
@@ -79,7 +139,7 @@ function NeNameValidation(neName, oldName, validationId) {
     $("#" + validationId).text("");
     if (neName === oldName)
         return true;
-    $.get({
+    $.ajax({
         async: false,
         url: '/Network/NeNameValidation',
         data: { name: neName },
@@ -177,7 +237,7 @@ function jalali_to_gregorian(jy, jm, jd) {
         days = (days - 1) % 365;
     }
     gd = days + 1;
-    sal_a = [0, 31, ((gy % 4 == 0 && gy % 100 != 0) || (gy % 400 == 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    sal_a = [0, 31, ((gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     for (gm = 0; gm < 13; gm++) {
         v = sal_a[gm];
         if (gd <= v) break;

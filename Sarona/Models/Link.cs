@@ -7,31 +7,10 @@ using System.Threading.Tasks;
 
 namespace Sarona.Models
 {
-    public enum LinkType
-    {
-        ISUP,
-        SIP,
-        PRA
-    }
-    public enum LinkDirection
-    {
-        Incoming,
-        Outgoing,
-        Bothway
-    }
+    
+    
 
-    public class LinkHistory
-    {
-        public long Id { get; set; }
-        public LinkType Type { get; set; }
-        public DateTime ModifiedOn { get; set; }
-        public string Username { get; set; }
-        public string Remark { get; set; }
-        public int Channels { get; set; }
-        public long LinkId { get; set; }
-        public LinkDirection Direction { get; set; }
-
-    }
+    
     
     public class Link:IValidatableObject
     {

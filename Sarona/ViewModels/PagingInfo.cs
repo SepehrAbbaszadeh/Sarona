@@ -12,6 +12,9 @@ namespace Sarona.ViewModels
         public int CurrentPage { get; set; }
         public int TotalPages =>
             (int)Math.Ceiling((decimal)TotalItems / ItemsPerPage);
+
+        public int From { get; internal set; }
+        public int To { get; internal set; }
     }
 
 }

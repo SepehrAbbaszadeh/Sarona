@@ -19,13 +19,18 @@ namespace Sarona
         public IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
-            string conString = Configuration["ConnectionStrings:DefaultConnection"];
+            string saronaConString;
+            string switchConString;
 
+            saronaConString = Configuration["ConnectionStrings:Sarona"];
+            switchConString = Configuration["ConnectionStrings:switch"];
 
-            services.AddDbContext<SaronaContext>(options => options.UseSqlServer(conString));
+            services.AddDbContext<SaronaContext>(options => options.UseSqlServer(saronaConString));
+            services.AddDbContext<SwitchContext>(options => options.UseSqlServer(switchConString));
+
             services.AddTransient<SaronaRepository>();
 
-            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(conString));
+            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(saronaConString));
 
             services.AddIdentity<AppUser, IdentityRole>(opts =>
             {
@@ -77,6 +82,9 @@ namespace Sarona
             }
             else
             {
+                app.UseDatabaseErrorPage();
+                app.UseDeveloperExceptionPage();
+                app.UseStatusCodePages();
                 //app.UseExceptionHandler();
             }
 
@@ -98,7 +106,6 @@ namespace Sarona
                     name: "District",
                     template: "Network/{district:length(2)}",
                     defaults: new { controller = "Network", action = "District", district = Area.A2 });
-
                 rt.MapRoute(null, "{controller=Home}/{action=Index}/{id?}");
             });
         }

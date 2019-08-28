@@ -12,23 +12,15 @@ namespace Sarona.Models
         public SaronaContext(DbContextOptions<SaronaContext> opts) : base(opts) { }
         public DbSet<Abbreviation> Abbreviations { get; set; }
         public DbSet<Exchange> Exchanges { get; set; }
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<NumberingPoolNetworkElement> NumberingPoolNetworkElements { get; set; }
         public DbSet<Link> Links { get; set; }
         public DbSet<LinkHistory> LinkHistories { get; set; }
         public DbSet<NumberingPool> NumberingPools { get; set; }
         public DbSet<NetworkElement> NetworkElements { get; set; }
         public DbSet<Misc> Miscs { get; set; }
-
-        //public long GetNextLinkSequenceValue()
-        //{
-        //    SqlParameter result = new SqlParameter("@result", System.Data.SqlDbType.BigInt)
-        //    {
-        //        Direction = System.Data.ParameterDirection.Output
-        //    };
-        //    Database.ExecuteSqlCommand(
-        //               "SELECT @result = (NEXT VALUE FOR LinkSequence)", result);
-        //    return (long)result.Value;
-        //}
+        public DbSet<CrmCode> CrmCodes { get; set; }
+        public DbSet<RmsMapping> RmsMappings { get; set; }
+        
         public long GetNextPbxSequenceValue()
         {
             SqlParameter result = new SqlParameter("@result", System.Data.SqlDbType.BigInt)
@@ -68,15 +60,29 @@ namespace Sarona.Models
             NetworkElementConfig(modelBuilder);
 
             modelBuilder.Entity<NumberingPoolNetworkElement>()
-                .HasKey(x => new { x.NumberingPoolId, x.NetworkElementId });
+                .HasKey(x => new { x.NumberingId, x.NetworkElementId });
 
             modelBuilder.Entity<Abbreviation>()
+                .HasKey(x=>x.Abb);
+
+            modelBuilder.Entity<Exchange>()
                 .HasIndex(x => x.Abb)
                 .IsUnique();
 
             modelBuilder.Entity<NumberingPool>()
                 .HasIndex(x => x.Prefix)
                 .IsUnique();
+
+            modelBuilder.Entity<Abbreviation>()
+                .HasMany(x => x.NumbeingPools)
+                .WithOne(x => x.Abbreviation)
+                .IsRequired(false);
+
+            modelBuilder.Entity<NumberingPool>()
+                .Property(x => x.Rond)
+                .HasComputedColumnSql("([dbo].[GetRondType]([Prefix]))");
+
+            
 
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {

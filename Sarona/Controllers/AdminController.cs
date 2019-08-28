@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Sarona.Controllers
 {
-    [Authorize(Roles = Settings.AdminsRole)]
+    [Authorize(Roles = "Admins")]
     public class AdminController : Controller
     {
         private UserManager<AppUser> userManager;

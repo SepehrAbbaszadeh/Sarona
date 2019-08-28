@@ -1,0 +1,196 @@
+﻿@model NetworkElement
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = $"{Model.Name} (Numbering)";
+}
+
+<div class="row">
+    <div class="@Settings.Col3">
+        <partial name="_NeMenu" model="new Tuple<string, NeType>(Model.Exchange.Name, Model.NetworkType)" />
+    </div>
+    <div class="@Settings.Col9">
+        <h3>@Model.Name</h3>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        @if (TempData.Keys.Contains("message"))
+        {
+            <div class="alert alert-success">
+                @TempData["message"]
+            </div>
+        }
+        <button type="button" class="btn btn-primary my-3" data-toggle="modal" data-target="#attachPrefixModal">Attach Prefix</button>
+
+        <div class="table-responsive mt-3 pb-3">
+            <table class="@Settings.TableClass" hidden style="width:100% !important" id="numberingTable">
+                <thead>
+                    <tr>
+                        <th>Prefix</th>
+                        <th>Min-Max</th>
+                        <th>Charging</th>
+                        <th>Type</th>
+                        <th>Float</th>
+                        <th>Remark</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var number in Model.NumberingPoolNetworkElements)
+                    {
+                        <tr>
+                            <td><a asp-action="pool" target="_blank" asp-controller="numbering" asp-route-prefix="@number.Numbering.Prefix">@number.Numbering.Prefix</a></td>
+                            <td>@number.Numbering.Min-@number.Numbering.Max</td>
+                            <td>@number.Numbering.ChargingCase</td>
+                            <td>@number.Numbering.NumberType</td>
+                            <td><span class="@(number.Numbering.IsFloat ? "fa fa-check":"fa fa-times")"></span></td>
+                            <td>@number.Numbering.Remark</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="right" data-html="true" title="User: @number.Numbering.Username <br/>Created at: @number.Numbering.CreatedOn.GetPersianDate()<br/>Modified at: @number.Numbering.ModifiedOn.GetPersianDate()<br/>Expire On: @number.Numbering.ExpireDate.GetPersianDate()">Details</button>
+                                    <button type="button" onclick="ShowDetachPrefix(@number.Numbering.Id)" class="btn btn-warning">Detach</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="detachModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detach Prefix</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure?
+            </div>
+            <div class="modal-footer">
+                <form asp-action="DetachPrefix" method="post">
+                    <input type="hidden" name="neId" value="@Model.Id" />
+                    <input type="hidden" name="prefixId" id="detachId" />
+                    <button type="submit" class="btn btn-warning">Detach</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="attachPrefixModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Attach Prefix</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <input type="text" placeholder="Search prefix" onkeyup="PopulatePrefixes($(this).val(),'prefixes')" />
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" multiple id="prefixes"></select>
+                        </div>
+                        <button class="btn btn-primary mb-3" onclick="PopulateAttachPrefixes();">Add to list</button>
+                        <div class="form-group">
+                            <label for="attachPrefixes">Prefixes to be attached</label>
+                            <select class="form-control" multiple id="attachPrefixes"></select>
+                        </div>
+                        <button class="btn btn-primary" onclick="RemoveSelectedAttachPrefixes();">Remove from list</button>
+                        <button class="btn btn-primary" onclick="ClearAttachPrefix();">Clear list</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="attachForm" asp-action="AttachPrefixes" onsubmit="return PopulateForm();" method="post">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="hidden" value="@Model.Id" name="neId" />
+                    <input type="hidden" value="" name="prefixes" id="prefixInput" />
+                    <button type="submit" class="btn btn-primary">Attach</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        var prefixes = [];
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        $(document).ready(function () {
+            $('#numberingTable').DataTable({
+                pageLength: 50
+            });
+            $('#numberingTable').removeAttr("hidden");
+        });
+
+        function PopulatePrefixes(prefix, selectId) {
+            $("#" + selectId).text('');
+            if (prefix === "")
+                return;
+
+            $.getJSON(
+                "/Numbering/GetPrefixes",
+                { prefix: prefix },
+                function (result) {
+                    $("#" + selectId).text('');
+                    $.each(result, function () { $("#" + selectId).append($("<option />").val(this.id).text(this.prefix)); });
+                });
+        }
+
+        function PopulateAttachPrefixes() {
+            var items = [];
+            $('#prefixes option:selected').each(function (index, element) {
+                var i = $.inArray($(element).val(), prefixes);
+                if (i < 0) {
+                    prefixes.push($(element).val());
+                    $("#attachPrefixes").append($("<option />").val($(element).val()).text($(element).text()));
+                }
+
+            });
+        }
+
+        function ClearAttachPrefix() {
+            prefixes = [];
+            $('#attachPrefixes').text("");
+        }
+
+        function RemoveSelectedAttachPrefixes() {
+            var selectedOptions = $('#attachPrefixes option:selected');
+            selectedOptions.each(function (index, element) {
+                var i = $.inArray($(element).val(), prefixes);
+                prefixes.splice(i, 1);
+            });
+            selectedOptions.remove();
+
+        }
+
+
+        function PopulateForm() {
+            var p = prefixes.join();
+            $("#prefixInput").val(p);
+            return true;
+        }
+
+
+        function ShowDetachPrefix(id) {
+            $("#detachId").val(id);
+            $("#detachModal").modal();
+        }
+
+
+    </script>
+}

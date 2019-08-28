@@ -14,11 +14,40 @@
             <a asp-action="District" asp-route-district="A6" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A6 ? "active":"")">Area 6</a>
             <a asp-action="District" asp-route-district="A7" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A7 ? "active":"")">Area 7</a>
             <a asp-action="District" asp-route-district="A8" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.A8 ? "active":"")">Area 8</a>
-            @*<a asp-action="District" asp-route-district="ON" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.ON ? "active":"")">Other Networks</a>*@
+            <a asp-action="District" asp-route-district="ON" class="list-group-item list-group-item-action @(Model.SelectedDistrict == Area.ON ? "active":"")">Other Networks (ON)</a>
         </div>
     </div>
     <div class="@Settings.Col9">
-        <h3>Area @Convert.ToInt32(Model.SelectedDistrict)</h3>
+        @switch (Model.SelectedDistrict)
+        {
+            case Area.A2:
+                <h3>Area 2</h3>
+                break;
+            case Area.A3:
+                <h3>Area 3</h3>
+                break;
+            case Area.A4:
+                <h3>Area 4</h3>
+                break;
+            case Area.A5:
+                <h3>Area 5</h3>
+                break;
+            case Area.A6:
+                <h3>Area 6</h3>
+                break;
+            case Area.A7:
+                <h3>Area 7</h3>
+                break;
+            case Area.A8:
+                <h3>Area 8</h3>
+                break;
+            case Area.ON:
+                <h3>Other Networks</h3>
+                break;
+            default:
+                break;
+        }
+
         <div asp-validation-summary="All" class="text-danger"></div>
         @if (TempData.Keys.Contains("message"))
         {
@@ -33,7 +62,7 @@
             @foreach (var providence in Model.Exchanges.Select(x => x.Providence).Distinct().OrderBy(x => x))
             {
                 <li class="nav-item">
-                    <a class="nav-link @(providence == "تهران"?"active":"")" id="@(count)-tab" data-toggle="tab" href="#@(count++)">@providence</a>
+                    <a class="nav-link @(providence == "تهران"?"active":"")" id="@(count)-tab" data-toggle="tab" href="#@(count++)">@providence <span class="badge badge-secondary">@Model.Exchanges.Where(x => x.Providence == providence).First().Exchanges.Count()</span></a>
                 </li>
             }
         </ul>
@@ -82,7 +111,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form asp-action="District" method="post" onsubmit="return AbbValidation($('#NewExchange_Abb').val(), '', 'abbValidation');">
+            <form asp-action="District" method="post" onsubmit="return AbbValidation($('#NewExchange_Abb').val(), '', 'abbValidation',true);">
                 <div class="modal-body">
                     <div class="form-group">
                         <label asp-for="NewExchange.Name"></label><div><span asp-validation-for="NewExchange.Name" class="text-danger"></span></div>
@@ -108,6 +137,10 @@
 
                             }
                         </select>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" asp-for="NewExchange.IsSite">
+                        <label class="custom-control-label" asp-for="NewExchange.IsSite"></label>
                     </div>
                     <input type="hidden" asp-for="NewExchange.Area" value="@Model.SelectedDistrict" />
                 </div>

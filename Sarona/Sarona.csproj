@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <UserSecretsId>0b496e4d-8f7a-40ab-8370-68d65b376936</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -59,15 +60,37 @@
     <Compile Remove="Migrations\13970613103147_S970613_0301.Designer.cs" />
     <Compile Remove="Migrations\13970624074451_Script970624_1215.cs" />
     <Compile Remove="Migrations\13970624074451_Script970624_1215.Designer.cs" />
+    <Compile Remove="Migrations\13970903094540_Initial.cs" />
+    <Compile Remove="Migrations\13970903094540_Initial.Designer.cs" />
+    <Compile Remove="Migrations\13970905075109_S_970905_1120.cs" />
+    <Compile Remove="Migrations\13970905075109_S_970905_1120.Designer.cs" />
+    <Compile Remove="Migrations\13970906094343_S970906_1313.cs" />
+    <Compile Remove="Migrations\13970906094343_S970906_1313.Designer.cs" />
+    <Compile Remove="Migrations\13970909193330_S970909_2303.cs" />
+    <Compile Remove="Migrations\13970909193330_S970909_2303.Designer.cs" />
     <Compile Remove="Migrations\20180711031223_Initial.cs" />
     <Compile Remove="Migrations\20180711031223_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20181120070925_S970829.cs" />
+    <Compile Remove="Migrations\20181120070925_S970829.Designer.cs" />
+    <Compile Remove="Migrations\20181120071107_S970829_1040.cs" />
+    <Compile Remove="Migrations\20181120071107_S970829_1040.Designer.cs" />
+    <Compile Remove="Migrations\20181120071955_S970829_1049.cs" />
+    <Compile Remove="Migrations\20181120071955_S970829_1049.Designer.cs" />
+    <Compile Remove="Migrations\20181120083126_AbbreviationWithFK.cs" />
+    <Compile Remove="Migrations\20181120083126_AbbreviationWithFK.Designer.cs" />
+    <Compile Remove="Migrations\20181120142707_S970829_1756.cs" />
+    <Compile Remove="Migrations\20181120142707_S970829_1756.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="4.5.2.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -81,6 +104,15 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Views\Network\District.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Report\FullSheet.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Report\RedFolder.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Report\Rms.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
   </ItemGroup>

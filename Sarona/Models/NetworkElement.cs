@@ -2,24 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Sarona.Models
 {
-    public interface ICapacity
-    {
-        int InstalledCapacity { get; set; }
-        int UsedCapacity { get; set; }
-    }
-    
+
     public enum NeType
     {
         Core,
         Access,
-        Remote,
-        PBX,
-        IP_PBX
+        Remote
     }
     public class NetworkElement
     {
@@ -37,7 +28,7 @@ namespace Sarona.Models
         public long ExchangeId { get; set; }
         public Exchange Exchange { get; set; }
         [Required]
-        public int InstalledCapacity { get; set; } 
+        public int InstalledCapacity { get; set; }
         [Required]
         public int UsedCapacity { get; set; }
         [Required]
@@ -48,11 +39,19 @@ namespace Sarona.Models
         public IEnumerable<Link> LinksOnEnd1 { get; set; }
         public IEnumerable<Link> LinksOnEnd2 { get; set; }
         public IEnumerable<NumberingPoolNetworkElement> NumberingPoolNetworkElements { get; set; }
-        public long? CustomerId { get; set; }
-        public Customer Customer { get; set; }
         public IEnumerable<NetworkElement> NetworkElements { get; set; }
         public DateTime ModifiedOn { get; set; }
         public string Username { get; set; }
         public DateTime CreatedOn { get; set; }
+
+        public string GetNumberings()
+        {
+            var numbers = new List<string>();
+            foreach (var junction in NumberingPoolNetworkElements)
+            {
+                numbers.Add(junction.Numbering.Prefix);
+            }
+            return string.Join(',', numbers);
+        }
     }
 }

@@ -5,28 +5,19 @@
     ViewData["Title"] = "Shenasname";
 }
 
-<div class="row">
-    <div class="@Settings.Col3">
-        <partial name="_Menu" />
-    </div>
-    <div class="@Settings.Col9">
-        <h3>شناسنامه مراکز</h3>
-        <form asp-action="ShenasnameExcel" class="mt-5">
-            <div class="form-group">
-                <label for="area">Select an area: </label>
-                <select name="area" class="form-control" style="width:200px">
-                    <option selected value="@Area.A2">Area 2</option>
-                    <option value="@Area.A3">Area 3</option>
-                    <option value="@Area.A4">Area 4</option>
-                    <option value="@Area.A5">Area 5</option>
-                    <option value="@Area.A6">Area 6</option>
-                    <option value="@Area.A7">Area 7</option>
-                    <option value="@Area.A8">Area 8</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Download</button>
-        </form>
-    </div>
-
-</div>
-
+    <h3>شناسنامه مراکز</h3>
+    <form asp-action="ShenasnameExcel" class="mt-5">
+        <div class="form-group">
+            <label for="area">Select an area: </label>
+            <select name="area" class="form-control" style="width:200px">
+                <option selected value="@Area.A2">Area 2</option>
+                <option value="@Area.A3">Area 3</option>
+                <option value="@Area.A4">Area 4</option>
+                <option value="@Area.A5">Area 5</option>
+                <option value="@Area.A6">Area 6</option>
+                <option value="@Area.A7">Area 7</option>
+                <option value="@Area.A8">Area 8</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Download</button>
+    </form>

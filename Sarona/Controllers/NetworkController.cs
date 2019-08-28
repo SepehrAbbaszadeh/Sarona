@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sarona.Models;
 using Sarona.ViewModels;
+using System;
 using System.Linq;
 
 
 namespace Sarona.Controllers
 {
-    [Authorize(Roles ="Admins, Traffic")]
+    [Authorize(Roles = "Admins, Traffic")]
     public class NetworkController : Controller
     {
         private SaronaRepository repository;
@@ -23,10 +24,10 @@ namespace Sarona.Controllers
         {
             var model = new DistrictViewModel
             {
-                Exchanges = repository.Exchanges.Where(x => x.Area == district).OrderBy(x => x.Abb).GroupBy(x=>x.Providence,x=>x,(key,g)=>new  ProvidenceExchanges{ Providence = key,Exchanges = g.ToList() }),
+                Exchanges = repository.Exchanges.Where(x => x.Area == district).OrderBy(x => x.Abb).GroupBy(x => x.Providence, x => x, (key, g) => new ProvidenceExchanges { Providence = key, Exchanges = g.ToList() }),
                 NewExchange = new Exchange(),
                 SelectedDistrict = district,
-                Miscs = repository.Miscs.Where(x=>x.Type == MiscType.Providence).OrderBy(x=>x.Name).ToArray()
+                Miscs = repository.Miscs.Where(x => x.Type == MiscType.Providence).OrderBy(x => x.Name).ToArray()
             };
             return View("District", model);
         }
@@ -57,7 +58,9 @@ namespace Sarona.Controllers
                 return RedirectToAction(nameof(District), new { district });
             }
             else
+            {
                 return Exchange(district, exchange);
+            }
         }
         [HttpPost]
         public IActionResult EditExchange([Bind(Prefix = nameof(ExchangeViewModel.SelectedExchange))]Exchange exch)
@@ -90,8 +93,9 @@ namespace Sarona.Controllers
                     CreatedOn = x.CreatedOn,
                     ModifiedOn = x.ModifiedOn,
                     Area = x.Area,
+                    IsSite = x.IsSite,
                     Username = x.Username,
-                    Providence=x.Providence,
+                    Providence = x.Providence,
                     NetworkElements = x.NetworkElements.Select(y => new NetworkElement()
                     {
                         Model = y.Model,
@@ -103,7 +107,6 @@ namespace Sarona.Controllers
                         UsedCapacity = y.UsedCapacity,
                         Type = y.Type,
                         Owner = y.Owner,
-                        Customer = new Customer() { Name = y.Customer.Name, Abb = y.Customer.Abb },
                         Parent = new NetworkElement() { Name = y.Parent.Name }
                     }).ToList()
                 }).FirstOrDefault(),
@@ -112,20 +115,34 @@ namespace Sarona.Controllers
             return View(nameof(Exchange), model);
         }
         [AcceptVerbs("Get", "Post")]
-        public IActionResult AbbValidation(string abb)
+        public IActionResult AbbValidation(string abb, bool onlyExchanges = false)
         {
             var res = abb.ToUpperInvariant();
-            var q = repository.Abbreviations.Where(x => x.Abb == res).Select(x => x.Name).FirstOrDefault();
-            if (q is null)
-                return Json(true);
+            int q = 0;
+            if (onlyExchanges)
+            {
+                q = repository.Exchanges.Where(x => x.Abb == res).Count();
+            }
             else
-                return Json($"Duplicate Abbreviation: {q}");
+            {
+                q = repository.Abbreviations.Where(x => x.Abb == abb).Count();
+            }
+
+            if (q == 0)
+            {
+                return Json(true);
+            }
+            else
+            {
+                return Json($"This abbreviation already used!");
+            }
         }
         [HttpPost]
         public IActionResult Exchange(Area district, string exchange, [Bind(Prefix = nameof(ExchangeViewModel.NewNE))]NetworkElement newNe)
         {
             if (ModelState.IsValid)
             {
+                newNe.Username = User.Identity.Name;
                 repository.AddNetworkElement(newNe);
                 TempData["message"] = $"{newNe.Name} added succesfully.";
                 return RedirectToAction(nameof(Exchange), new { district, exchange });
@@ -142,7 +159,7 @@ namespace Sarona.Controllers
 
             var model = new LinksViewModel()
             {
-                Misc = repository.Miscs.ToArray(),
+                Misc = repository.Miscs.OrderBy(x => x.Name).ToArray(),
                 NE = repository.GetLinks(ne)
             };
 
@@ -155,9 +172,13 @@ namespace Sarona.Controllers
             var res = name.ToUpperInvariant();
             var q = repository.NetworkElements.Where(x => x.Name == res).Select(x => new { x.Name, Exchange = x.Exchange.Name }).FirstOrDefault();
             if (q is null)
+            {
                 return Json(true);
+            }
             else
+            {
                 return Json($"Duplicate Name: {q.Name} in {q.Exchange}");
+            }
         }
         [HttpPost]
         public IActionResult EditNe([Bind(Prefix = nameof(CoreViewModel.NE))]NetworkElement ne)
@@ -170,7 +191,9 @@ namespace Sarona.Controllers
                 return RedirectToAction(nameof(Specifications), new { district = exch.Area, exchange = exch.Abb, ne = ne.Name });
             }
             else
+            {
                 return Specifications(exch.Area, exch.Abb, ne.Name);
+            }
         }
 
         [HttpPost]
@@ -189,9 +212,13 @@ namespace Sarona.Controllers
         public IActionResult LinkChannelValidaton([Bind(Prefix = nameof(LinksViewModel.NewLink))]Link newLink)
         {
             if (newLink.Type == LinkType.ISUP && newLink.Channels % 31 != 0)
+            {
                 return Json("Number of channels for ISUP links must be N*31");
+            }
             else
+            {
                 return Json(true);
+            }
         }
         public IActionResult Specifications(Area district, string exchange, string ne)
         {
@@ -211,10 +238,6 @@ namespace Sarona.Controllers
                     return AccessElement(q);
                 case NeType.Remote:
                     return RemoteElement(q);
-                case NeType.PBX:
-                    return PbxElement(q);
-                case NeType.IP_PBX:
-                    return PbxElement(q);
                 default:
                     return BadRequest();
             }
@@ -261,8 +284,6 @@ namespace Sarona.Controllers
                 Remotes = childrenCap.Where(x => x.Type == NeType.Remote).FirstOrDefault(),
                 Accesses = childrenCap.Where(x => x.Type == NeType.Access).FirstOrDefault(),
                 CoreLinks = linksSpecsByNeType.Where(x => x.Type == NeType.Core).FirstOrDefault(),
-                PbxLinks = linksSpecsByNeType.Where(x => x.Type == NeType.PBX).FirstOrDefault(),
-                IpPbxLinks = linksSpecsByNeType.Where(x => x.Type == NeType.IP_PBX).FirstOrDefault(),
                 IsupLinks = linksSpecsByLinkType.Where(x => x.Type == LinkType.ISUP).FirstOrDefault(),
                 SipLinks = linksSpecsByLinkType.Where(x => x.Type == LinkType.SIP).FirstOrDefault(),
                 Miscs = repository.Miscs.OrderBy(x => x.Name).ToArray()
@@ -323,7 +344,9 @@ namespace Sarona.Controllers
                 return RedirectToAction(nameof(Links), new { district, exchange, ne });
             }
             else
+            {
                 return Links(district, exchange, ne);
+            }
         }
         public IActionResult DeleteNe(Area district, string exchange, string ne, int id)
         {
@@ -336,21 +359,70 @@ namespace Sarona.Controllers
         {
             var model = new RemotesViewModel()
             {
-                NE = repository.NetworkElements.Where(x => x.Name == ne).Include(x => x.Exchange).First()
+                NE = repository.NetworkElements
+                .Where(x => x.Name == ne)
+                .Include(x => x.Exchange)
+
+                .First()
 
             };
-            model.Remotes = repository.NetworkElements.Where(x => x.ParentId == model.NE.Id && x.NetworkType == NeType.Remote).Include(x => x.Exchange);
+            model.Remotes = repository.NetworkElements
+                .Where(x => x.ParentId == model.NE.Id && x.NetworkType == NeType.Remote)
+                .Include(x => x.Exchange)
+                .Include(x => x.NumberingPoolNetworkElements)
+                .ThenInclude(x => x.Numbering);
             return View("Remotes", model);
         }
         public IActionResult Accesses(Area district, string exchange, string ne)
         {
             var model = new RemotesViewModel()
             {
-                NE = repository.NetworkElements.Where(x => x.Name == ne).Include(x => x.Exchange).First()
+                NE = repository.NetworkElements
+                .Where(x => x.Name == ne)
+                .Include(x => x.Exchange)
+
+                .First()
 
             };
-            model.Remotes = repository.NetworkElements.Where(x => x.ParentId == model.NE.Id && x.NetworkType == NeType.Access).Include(x => x.Exchange);
+            model.Remotes = repository.NetworkElements
+                .Where(x => x.ParentId == model.NE.Id && x.NetworkType == NeType.Access)
+                .Include(x => x.Exchange)
+                .Include(x => x.NumberingPoolNetworkElements)
+                .ThenInclude(x => x.Numbering);
             return View("Remotes", model);
+        }
+
+        public IActionResult Numbering(Area district, string exchange, string ne)
+        {
+            var model = repository.NetworkElements
+                .Where(x => x.Name == ne)
+                .Include(x => x.NumberingPoolNetworkElements)
+                .ThenInclude(x => x.Numbering)
+                .Include(x => x.Exchange)
+                .First();
+            return View("Numbering", model);
+        }
+
+        public IActionResult AttachPrefixes(Area district, string exchange, string ne, string prefixes)
+        {
+            var splits = prefixes.Split(',');
+            long[] ids = new long[splits.Length];
+            for (int i = 0; i < splits.Length; i++)
+            {
+                ids[i] = Convert.ToInt64(splits[i]);
+            }
+            repository.AttachNumberingPool(ne, User.Identity.Name, ids);
+            return RedirectToAction(nameof(Numbering), new { district, exchange, ne });
+        }
+
+        public IActionResult DetachPrefix(Area district, string exchange, string ne, long neId, long prefixId)
+        {
+            if (ModelState.IsValid)
+            {
+                repository.DetachPrefix(neId, prefixId);
+                return RedirectToAction(nameof(Numbering), new { district, exchange, ne });
+            }
+            return BadRequest();
         }
     }
 }

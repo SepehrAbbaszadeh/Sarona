@@ -1,0 +1,39 @@
+﻿@model IEnumerable<FullPageRecord>
+@using Sarona
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Full Page";
+}
+
+
+
+    <h3>Full Page</h3>
+
+    <table class="table table-bordered">
+        <tbody>
+            @foreach (var row in Model.GroupBy(x => x.Row).OrderBy(x => x.Key))
+            {
+                <tr>
+                    @foreach (var td in row)
+                    {
+                        <td bgcolor="@td.Color.ToHex()"><a asp-action="Pool" asp-controller="Numbering" asp-route-prefix="@td.Prefix" target="_blank" data-toggle="tooltip" data-placement="top" data-html="true" title="@Html.Raw(td.Description)">@td.Prefix </a></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+        $(document).ready(function () {
+            $('.table-responsive').do
+        })
+    </script>
+}
+

@@ -18,7 +18,6 @@ namespace Sarona.Models
         Providence = 8,
         ChargingCase = 9,
         NumberType = 10,
-        RoutingType = 11
     }
     public class Misc
     {
